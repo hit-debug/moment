@@ -55,16 +55,10 @@ export default function QuoteShareModal() {
       <View style={[styles.sheet, { paddingBottom: Math.max(insets.bottom, 20) }]}>
         <View style={styles.handle} />
         
-        {/* Header with Close Button Only */}
+        {/* Header with Format Toggle and Close Button */}
         <View style={styles.header}>
-          <View style={{ flex: 1 }} />
-          <Pressable onPress={() => router.back()} style={styles.closeBtn}>
-            <X size={24} color="rgba(244,243,239,0.5)" />
-          </Pressable>
-        </View>
-
-        {/* Format Toggle (Full / Square) */}
-        <View style={styles.formatToggleWrapper}>
+          <View style={styles.headerSide} />
+          
           <View style={styles.formatToggle}>
             <Pressable 
               style={[styles.formatBtn, format === 'full' && styles.formatBtnActive]}
@@ -77,6 +71,12 @@ export default function QuoteShareModal() {
               onPress={() => setFormat('square')}
             >
               <Text style={[styles.formatText, format === 'square' && styles.formatTextActive]}>Square</Text>
+            </Pressable>
+          </View>
+
+          <View style={[styles.headerSide, { alignItems: 'flex-end' }]}>
+            <Pressable onPress={() => router.back()} style={styles.closeBtn}>
+              <X size={24} color="rgba(244,243,239,0.5)" />
             </Pressable>
           </View>
         </View>
@@ -216,6 +216,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 40,
     borderTopRightRadius: 40,
     paddingTop: 12,
+    maxHeight: '88%',
   },
   handle: {
     width: 40,
@@ -231,13 +232,13 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     height: 44,
+    marginBottom: 16,
+  },
+  headerSide: {
+    flex: 1,
   },
   closeBtn: {
     padding: 8,
-  },
-  formatToggleWrapper: {
-    alignItems: 'center',
-    marginBottom: 20,
   },
   formatToggle: {
     flexDirection: 'row',
