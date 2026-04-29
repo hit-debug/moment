@@ -30,12 +30,12 @@ const MENU_CONTENT = [
 ];
 
 const MENU_SETTINGS = [
-  { id: 'notif', title: '알림 설정', icon: Bell },
-  { id: 'theme', title: '테마 설정', icon: Palette },
-  { id: 'reset', title: '명언 선호 재설정', icon: RotateCcw },
-  { id: 'account', title: '계정 관리', icon: User },
-  { id: 'widget', title: '위젯 가이드', icon: Smartphone },
-  { id: 'lang', title: '언어', value: '한국어', icon: Globe },
+  { id: 'notif', title: '알림 설정', icon: Bell, route: '/(app)/my/settings/notification' },
+  { id: 'theme', title: '테마 설정', icon: Palette, route: '/(modals)/quote-customize' },
+  { id: 'reset', title: '명언 선호 재설정', icon: RotateCcw, route: '/(app)/my/settings/quote-pref' },
+  { id: 'account', title: '계정 관리', icon: User, route: '/(app)/my/settings/account' },
+  { id: 'widget', title: '위젯 가이드', icon: Smartphone, route: '/(app)/my/settings/widget-guide' },
+  { id: 'lang', title: '언어', value: '한국어', icon: Globe, route: '/settings/language' },
 ];
 
 export default function MyScreen() {
@@ -65,7 +65,10 @@ export default function MyScreen() {
         </View>
 
         {/* Pro Banner */}
-        <Pressable style={styles.proBanner}>
+        <Pressable 
+          style={styles.proBanner}
+          onPress={() => router.push('/(app)/my/subscription')}
+        >
           <View style={styles.proLeft}>
             <View style={styles.crownCircle}>
               <Crown size={16} color="#FFD700" fill="#FFD700" />
@@ -86,7 +89,7 @@ export default function MyScreen() {
               <Pressable 
                 key={item.id} 
                 style={styles.menuItem}
-                onPress={() => item.route && router.push(item.route)}
+                onPress={() => item.route && router.push(item.route as any)}
               >
                 <View style={styles.menuItemLeft}>
                   <item.icon size={20} color="#E8607A" strokeWidth={2} />
@@ -109,7 +112,10 @@ export default function MyScreen() {
           <View style={styles.menuGroup}>
             {MENU_SETTINGS.map((item, idx) => (
               <React.Fragment key={item.id}>
-                <Pressable style={styles.menuItem}>
+                <Pressable 
+                  style={styles.menuItem}
+                  onPress={() => item.route && router.push(item.route as any)}
+                >
                   <View style={styles.menuItemLeft}>
                     <item.icon size={20} color="rgba(244,243,239,0.6)" strokeWidth={1.5} />
                     <Text style={styles.menuItemText}>{item.title}</Text>

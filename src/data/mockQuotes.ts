@@ -9,6 +9,7 @@ export interface MockQuote {
   author: string;
   authorRole: string;
   categories: string[];
+  bg_image?: string;
 }
 
 export const mockQuotes: MockQuote[] = [

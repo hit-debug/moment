@@ -46,7 +46,7 @@ export default function SplashScreen() {
   return (
     <View style={styles.container}>
       {/* 배경 이펙트 (원형 블러 시뮬레이션) */}
-      <View style={styles.bgEffect} pointerEvents="none" />
+      <View style={[styles.bgEffect, { pointerEvents: 'none' }]} />
 
       {/* 메인 콘텐츠 (페이드인 애니메이션) */}
       <Animated.View style={[styles.contentContainer, { opacity: fadeAnim }]}>

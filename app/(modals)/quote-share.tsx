@@ -4,37 +4,67 @@ import {
   Text,
   StyleSheet,
   Pressable,
-  ScrollView,
   Dimensions,
   Image,
   Platform,
+  TextInput,
+  KeyboardAvoidingView,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { X, Camera, MessageSquare, Copy, Download } from 'lucide-react-native';
+import { X, Camera, MessageSquare, Copy, Download, MessageCircle } from 'lucide-react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 
-const { width: SCREEN_W } = Dimensions.get('window');
+const { width: SCREEN_W, height: SCREEN_H } = Dimensions.get('window');
+
+type ShareFormat = 'full' | 'square';
+type ShareMode = 'quote' | 'letter';
+
+function getByteLength(str: string): number {
+  let byte = 0;
+  for (let i = 0; i < str.length; i++) {
+    const code = str.charCodeAt(i);
+    byte += code > 127 ? 2 : 1;
+  }
+  return byte;
+}
 
 export default function QuoteShareModal() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const [format, setFormat] = useState<'full' | 'square'>('full');
+  const [format, setFormat] = useState<ShareFormat>('full');
+  const [mode, setMode] = useState<ShareMode>('quote');
+  const [comment, setComment] = useState('');
+
+  const isLetter = mode === 'letter';
+  const currentByte = getByteLength(comment);
+  const MAX_BYTE = 100;
+
+  const handleChangeText = (text: string) => {
+    if (getByteLength(text) <= MAX_BYTE) {
+      setComment(text);
+    }
+  };
 
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView 
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      style={styles.container}
+    >
       <Pressable style={styles.backdrop} onPress={() => router.back()} />
-      <View style={[styles.sheet, { paddingBottom: insets.bottom + 20 }]}>
+      <View style={[styles.sheet, { paddingBottom: Math.max(insets.bottom, 20) }]}>
         <View style={styles.handle} />
         
+        {/* Header with Close Button Only */}
         <View style={styles.header}>
-          <Text style={styles.title}>공유하기</Text>
+          <View style={{ flex: 1 }} />
           <Pressable onPress={() => router.back()} style={styles.closeBtn}>
             <X size={24} color="rgba(244,243,239,0.5)" />
           </Pressable>
         </View>
 
-        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 20 }}>
-          {/* Format Toggle */}
+        {/* Format Toggle (Full / Square) */}
+        <View style={styles.formatToggleWrapper}>
           <View style={styles.formatToggle}>
             <Pressable 
               style={[styles.formatBtn, format === 'full' && styles.formatBtnActive]}
@@ -49,52 +79,126 @@ export default function QuoteShareModal() {
               <Text style={[styles.formatText, format === 'square' && styles.formatTextActive]}>Square</Text>
             </Pressable>
           </View>
+        </View>
 
-          {/* Preview Card */}
-          <View style={styles.previewContainer}>
-            <View style={[
-              styles.previewCard,
-              format === 'square' ? styles.previewSquare : styles.previewFull
+        {/* Mode Toggle (명언만 공유 / 편지와 함께) */}
+        <View style={styles.modeToggleWrapper}>
+          <View style={styles.modeToggle}>
+            <Pressable 
+              style={[styles.modeBtn, mode === 'quote' && styles.modeBtnActive]}
+              onPress={() => setMode('quote')}
+            >
+              <Text style={[styles.modeText, mode === 'quote' && styles.modeTextActive]}>명언만 공유</Text>
+            </Pressable>
+            <Pressable 
+              style={[styles.modeBtn, mode === 'letter' && styles.modeBtnActive]}
+              onPress={() => setMode('letter')}
+            >
+              <Text style={[styles.modeText, mode === 'letter' && styles.modeTextActive]}>편지와 함께</Text>
+            </Pressable>
+          </View>
+        </View>
+
+        {/* Preview Card */}
+        <View style={styles.previewContainer}>
+          <View style={[
+            styles.previewCard,
+            format === 'square' ? styles.previewSquare : styles.previewFull
+          ]}>
+            <Image 
+              source={{ uri: 'https://images.unsplash.com/photo-1497215848147-750f003714b6' }}
+              style={StyleSheet.absoluteFillObject}
+            />
+            
+            {/* Scrims */}
+            <LinearGradient
+              colors={['rgba(0,0,0,0.5)', 'transparent']}
+              style={[styles.scrim, { top: 0, height: '40%' }]}
+            />
+            <LinearGradient
+              colors={['transparent', 'rgba(0,0,0,0.8)']}
+              style={[styles.scrim, { bottom: 0, height: format === 'full' ? '50%' : '40%' }]}
+            />
+            
+            <View style={styles.previewContent}>
+              {isLetter && (
+                <View style={styles.letterArea}>
+                  <TextInput
+                    style={styles.letterInput}
+                    placeholder="이 글귀를 전하고 싶은 분에게 한 줄을 남겨보세요."
+                    placeholderTextColor="rgba(255,255,255,0.7)"
+                    multiline
+                    value={comment}
+                    onChangeText={handleChangeText}
+                    selectionColor="#E8491E"
+                  />
+                  <View style={styles.letterDivider} />
+                </View>
+              )}
+              <Text style={[styles.previewQuote, isLetter && { fontSize: 13, marginTop: 8 }]}>
+                작은 전진이라도 매일 반복되면 결국 아무도 막을 수 없는 힘이 된다.
+              </Text>
+              <Text style={[styles.previewAuthor, isLetter && { fontSize: 11, marginTop: 6 }]}>
+                제임스 클리어
+              </Text>
+            </View>
+            <Text style={styles.watermark}>Moment</Text>
+          </View>
+        </View>
+
+        {/* Byte Counter */}
+        <View style={styles.byteCounterWrapper}>
+          {isLetter && (
+            <Text style={[
+              styles.byteCounter,
+              currentByte >= MAX_BYTE && { color: '#E8491E' }
             ]}>
-              <View style={styles.previewPlaceholder} />
-              <View style={styles.previewContent}>
-                <Text style={styles.previewQuote}>"작은 전진이라도 매일 반복되면 결국 아무도 막을 수 없는 힘이 된다."</Text>
-                <Text style={styles.previewAuthor}>— 제임스 클리어</Text>
-              </View>
-              <Text style={styles.watermark}>Moment</Text>
-            </View>
-          </View>
+              {currentByte} / {MAX_BYTE} bytes
+            </Text>
+          )}
+        </View>
 
-          {/* Share Channels */}
-          <View style={styles.shareChannels}>
-            <View style={styles.channelItem}>
-              <View style={[styles.channelIcon, { backgroundColor: '#E4405F' }]}>
-                <Camera size={28} color="#FFF" />
-              </View>
-              <Text style={styles.channelLabel}>인스타그램</Text>
-            </View>
-            <View style={styles.channelItem}>
-              <View style={[styles.channelIcon, { backgroundColor: '#FEE500' }]}>
-                <MessageSquare size={28} color="#3C1E1E" />
-              </View>
-              <Text style={styles.channelLabel}>카카오톡</Text>
-            </View>
-            <View style={styles.channelItem}>
-              <View style={[styles.channelIcon, { backgroundColor: 'rgba(255,255,255,0.08)' }]}>
-                <Copy size={24} color="#F4F3EF" />
-              </View>
-              <Text style={styles.channelLabel}>링크 복사</Text>
-            </View>
-            <View style={styles.channelItem}>
-              <View style={[styles.channelIcon, { backgroundColor: 'rgba(255,255,255,0.08)' }]}>
-                <Download size={24} color="#F4F3EF" />
-              </View>
-              <Text style={styles.channelLabel}>이미지 저장</Text>
-            </View>
+        {/* Bottom Divider */}
+        <View style={styles.bottomDivider} />
+
+        {/* Share Channels */}
+        <View style={styles.shareChannels}>
+          <View style={styles.channelItem}>
+            <LinearGradient
+              colors={['#f09433', '#e6683c', '#dc2743', '#cc2366', '#bc1888']}
+              style={styles.channelIcon}
+            >
+              <Camera size={26} color="#FFF" />
+            </LinearGradient>
+            <Text style={styles.channelLabel}>인스타그램</Text>
           </View>
-        </ScrollView>
+          <View style={styles.channelItem}>
+            <View style={[styles.channelIcon, { backgroundColor: '#FEE500' }]}>
+              <MessageSquare size={26} color="#3C1E1E" fill="#3C1E1E" />
+            </View>
+            <Text style={styles.channelLabel}>카카오톡</Text>
+          </View>
+          <View style={styles.channelItem}>
+            <View style={[styles.channelIcon, { backgroundColor: '#34C759' }]}>
+              <MessageCircle size={26} color="#FFF" fill="#FFF" />
+            </View>
+            <Text style={styles.channelLabel}>메시지</Text>
+          </View>
+          <View style={styles.channelItem}>
+            <View style={[styles.channelIcon, { backgroundColor: '#4B5563' }]}>
+              <Download size={24} color="#FFF" />
+            </View>
+            <Text style={styles.channelLabel}>이미지저장</Text>
+          </View>
+          <View style={styles.channelItem}>
+            <View style={[styles.channelIcon, { backgroundColor: '#4B5563' }]}>
+              <Copy size={22} color="#FFF" />
+            </View>
+            <Text style={styles.channelLabel}>텍스트복사</Text>
+          </View>
+        </View>
       </View>
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -108,45 +212,41 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.6)',
   },
   sheet: {
-    backgroundColor: '#1F2937',
+    backgroundColor: '#2C3340',
     borderTopLeftRadius: 40,
     borderTopRightRadius: 40,
-    paddingHorizontal: 24,
     paddingTop: 12,
-    height: '85%',
   },
   handle: {
     width: 40,
     height: 4,
-    backgroundColor: 'rgba(255,255,255,0.1)',
+    backgroundColor: 'rgba(255,255,255,0.2)',
     borderRadius: 2,
     alignSelf: 'center',
-    marginBottom: 20,
+    marginBottom: 8,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 20,
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#F4F3EF',
+    paddingHorizontal: 16,
+    height: 44,
   },
   closeBtn: {
-    padding: 4,
+    padding: 8,
+  },
+  formatToggleWrapper: {
+    alignItems: 'center',
+    marginBottom: 20,
   },
   formatToggle: {
     flexDirection: 'row',
-    backgroundColor: 'rgba(255, 255, 255, 0.06)',
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
     borderRadius: 20,
     padding: 4,
-    alignSelf: 'center',
-    marginBottom: 24,
   },
   formatBtn: {
-    paddingHorizontal: 20,
+    paddingHorizontal: 24,
     paddingVertical: 8,
     borderRadius: 16,
   },
@@ -156,22 +256,48 @@ const styles = StyleSheet.create({
   formatText: {
     fontSize: 13,
     fontWeight: '600',
-    color: 'rgba(244,243,239,0.4)',
+    color: 'rgba(244,243,239,0.5)',
   },
   formatTextActive: {
     color: '#FFFFFF',
   },
+  modeToggleWrapper: {
+    paddingHorizontal: 24,
+    marginBottom: 24,
+  },
+  modeToggle: {
+    flexDirection: 'row',
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    borderRadius: 24,
+    padding: 4,
+  },
+  modeBtn: {
+    flex: 1,
+    paddingVertical: 14,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  modeBtnActive: {
+    backgroundColor: '#E8491E',
+  },
+  modeText: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: 'rgba(244,243,239,0.5)',
+  },
+  modeTextActive: {
+    color: '#FFFFFF',
+  },
   previewContainer: {
     alignItems: 'center',
-    marginBottom: 40,
   },
   previewCard: {
-    borderRadius: 20,
+    borderRadius: 24,
     overflow: 'hidden',
     backgroundColor: '#111',
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 30,
     elevation: 10,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 10 },
@@ -179,50 +305,95 @@ const styles = StyleSheet.create({
     shadowRadius: 20,
   },
   previewFull: {
-    width: SCREEN_W * 0.6,
+    width: SCREEN_W * 0.55,
     aspectRatio: 9 / 16,
   },
   previewSquare: {
     width: SCREEN_W * 0.75,
     aspectRatio: 1,
   },
-  previewPlaceholder: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: '#1a1a1a',
+  scrim: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
   },
   previewContent: {
+    paddingHorizontal: 24,
     alignItems: 'center',
+    width: '100%',
+    zIndex: 10,
+  },
+  letterArea: {
+    width: '100%',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  letterInput: {
+    width: '100%',
+    color: '#FFFFFF',
+    fontSize: 14,
+    textAlign: 'center',
+    fontStyle: 'italic',
+    paddingVertical: 8,
+    fontWeight: '500',
+  },
+  letterDivider: {
+    width: '60%',
+    height: 1,
+    backgroundColor: 'rgba(255,255,255,0.3)',
+    marginTop: 4,
   },
   previewQuote: {
     fontSize: 16,
     color: '#FFF',
     textAlign: 'center',
-    lineHeight: 24,
+    lineHeight: 26,
     fontWeight: '600',
     marginBottom: 12,
   },
   previewAuthor: {
-    fontSize: 12,
-    color: 'rgba(255,255,255,0.6)',
-    fontWeight: '600',
+    fontSize: 13,
+    color: '#FFF',
+    fontWeight: '700',
   },
   watermark: {
     position: 'absolute',
     bottom: 16,
-    right: 20,
+    right: 16,
     fontSize: 12,
-    color: 'rgba(255,255,255,0.4)',
+    color: 'rgba(255,255,255,0.6)',
     fontFamily: Platform.OS === 'ios' ? 'Georgia' : 'serif',
     fontStyle: 'italic',
+    zIndex: 10,
+  },
+  byteCounterWrapper: {
+    paddingHorizontal: 32,
+    height: 24,
+    justifyContent: 'center',
+    alignItems: 'flex-end',
+    marginTop: 8,
+    marginBottom: 16,
+  },
+  byteCounter: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: 'rgba(255,255,255,0.4)',
+  },
+  bottomDivider: {
+    height: 1,
+    backgroundColor: 'rgba(255,255,255,0.08)',
+    marginHorizontal: 24,
+    marginBottom: 24,
   },
   shareChannels: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingHorizontal: 8,
+    paddingHorizontal: 24,
+    marginBottom: 16,
   },
   channelItem: {
     alignItems: 'center',
-    gap: 8,
+    gap: 10,
   },
   channelIcon: {
     width: 60,
@@ -232,8 +403,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   channelLabel: {
-    fontSize: 12,
-    color: 'rgba(244,243,239,0.6)',
-    fontWeight: '500',
+    fontSize: 11,
+    color: 'rgba(244,243,239,0.7)',
+    fontWeight: '600',
   },
 });

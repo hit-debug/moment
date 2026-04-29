@@ -90,7 +90,7 @@ function QuoteCanvas({
   return (
     <View style={styles.canvasContainer}>
       <Image
-        source={{ uri: quote.bgImage || 'https://images.unsplash.com/photo-1497215848147-750f003714b6' }}
+        source={{ uri: quote.bg_image || 'https://images.unsplash.com/photo-1497215848147-750f003714b6' }}
         style={StyleSheet.absoluteFillObject}
         resizeMode="cover"
       />
@@ -98,13 +98,11 @@ function QuoteCanvas({
       {/* Top/Bottom Scrims */}
       <LinearGradient
         colors={['rgba(0,0,0,0.6)', 'transparent']}
-        style={styles.scrimTop}
-        pointerEvents="none"
+        style={[styles.scrimTop, { pointerEvents: 'none' }]}
       />
       <LinearGradient
         colors={['transparent', 'rgba(0,0,0,0.8)']}
-        style={styles.scrimBottom}
-        pointerEvents="none"
+        style={[styles.scrimBottom, { pointerEvents: 'none' }]}
       />
 
       <View style={styles.contentWrapper}>
@@ -171,7 +169,7 @@ export default function QuoteTodayScreen() {
 
   const goNext = useCallback(() => {
     if (quotes.length === 0) return;
-    Animated.timing(translateX, { toValue: -SCREEN_W, duration: 250, useNativeDriver: true }).start(() => {
+    Animated.timing(translateX, { toValue: -SCREEN_W, duration: 250, useNativeDriver: Platform.OS !== 'web' }).start(() => {
       translateX.setValue(0);
       setCurrentIndex((i) => (i + 1) % quotes.length);
     });
@@ -179,7 +177,7 @@ export default function QuoteTodayScreen() {
 
   const goPrev = useCallback(() => {
     if (quotes.length === 0) return;
-    Animated.timing(translateX, { toValue: SCREEN_W, duration: 250, useNativeDriver: true }).start(() => {
+    Animated.timing(translateX, { toValue: SCREEN_W, duration: 250, useNativeDriver: Platform.OS !== 'web' }).start(() => {
       translateX.setValue(0);
       setCurrentIndex((i) => (i - 1 + quotes.length) % quotes.length);
     });
@@ -195,7 +193,7 @@ export default function QuoteTodayScreen() {
           if (gestureState.dx < -SWIPE_THRESHOLD) goNext();
           else if (gestureState.dx > SWIPE_THRESHOLD) goPrev();
           else {
-            Animated.spring(translateX, { toValue: 0, useNativeDriver: true, tension: 100, friction: 10 }).start();
+            Animated.spring(translateX, { toValue: 0, useNativeDriver: Platform.OS !== 'web', tension: 100, friction: 10 }).start();
           }
         },
       }),
@@ -408,7 +406,7 @@ const styles = StyleSheet.create({
     zIndex: 20,
   },
   headerLeft: {
-    width: 80,
+    width: 110,
   },
   logoText: {
     fontSize: 24,
@@ -443,7 +441,7 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
   },
   headerBtn: {
-    width: 80,
+    width: 110,
     alignItems: 'flex-end',
     justifyContent: 'center',
     height: 44,
