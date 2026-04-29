@@ -61,9 +61,10 @@ export default function QuoteShareModal() {
   };
 
   const getCommentFontSize = (byte: number) => {
-    if (byte <= 40) return 15;
-    if (byte <= 70) return 13;
-    return 12;
+    if (byte <= 30) return 15;
+    if (byte <= 60) return 13;
+    if (byte <= 80) return 11;
+    return 10;
   };
 
   return (
@@ -356,25 +357,24 @@ const styles = StyleSheet.create({
   letterInput: {
     width: '100%',
     color: '#FFFFFF',
-    fontSize: 14,
     textAlign: 'center',
     fontStyle: 'italic',
-    paddingVertical: 8,
+    paddingVertical: 2,
     fontWeight: '500',
   },
   letterDivider: {
     width: '60%',
     height: 1,
     backgroundColor: 'rgba(255,255,255,0.3)',
-    marginTop: 4,
+    marginTop: 2,
   },
   previewQuote: {
-    fontSize: 16,
+    fontSize: 14,
     color: '#FFF',
     textAlign: 'center',
-    lineHeight: 26,
+    lineHeight: 22,
     fontWeight: '600',
-    marginBottom: 12,
+    marginBottom: 8,
   },
   previewAuthor: {
     fontSize: 13,
