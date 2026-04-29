@@ -134,6 +134,7 @@ const styles = StyleSheet.create({
     borderColor: '#E8491E',
   },
   input: {
+    flex: 1,
     fontSize: 16,
     color: '#F4F3EF',
     lineHeight: 24,
