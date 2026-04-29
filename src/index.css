@@ -1,0 +1,167 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================================
+   Moment Design System v3.0 — Semantic Tokens (HSL)
+   - All colors HSL. No hardcoded HEX in components.
+   - Default to dark mode (몰입형 풀스크린 캔버스 중심)
+   ============================================================ */
+
+@layer base {
+  :root {
+    /* --- Moment Brand: Dark mode (default for canvas feed) --- */
+    --background: 0 0% 7%;            /* #111111 color-bg-deep */
+    --foreground: 44 21% 96%;         /* #F4F3EF color-text-primary */
+
+    --bg-deep: 0 0% 7%;               /* #111111 */
+    --bg-primary: 240 6% 10%;         /* #18181B */
+    --bg-surface: 217 19% 27%;        /* #1F2937 */
+
+    --text-primary: 44 21% 96%;       /* #F4F3EF */
+    --text-secondary: 44 21% 96%;     /* with /80 alpha utility */
+
+    --action-cta: 14 81% 51%;         /* #E8491E */
+    --action-cta-foreground: 0 0% 100%;
+
+    --emotion-like: 348 73% 64%;      /* #E8607A */
+    --status-success: 105 30% 81%;    /* #C8DCC0 */
+    --status-error: 0 72% 51%;        /* #DC2626 */
+    --status-warning: 32 94% 44%;     /* #D97706 */
+    --status-info: 199 95% 39%;       /* #0284C7 */
+
+    --divider: 0 0% 100%;             /* with /5 alpha utility */
+
+    /* shadcn-mapped (kept consistent with brand) */
+    --card: 217 19% 27%;
+    --card-foreground: 44 21% 96%;
+    --popover: 217 19% 27%;
+    --popover-foreground: 44 21% 96%;
+    --primary: 14 81% 51%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 217 19% 27%;
+    --secondary-foreground: 44 21% 96%;
+    --muted: 217 19% 27%;
+    --muted-foreground: 44 21% 96%;
+    --accent: 217 19% 27%;
+    --accent-foreground: 44 21% 96%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 100%;
+    --input: 0 0% 100%;
+    --ring: 14 81% 51%;
+
+    --radius: 0.75rem;
+
+    /* Spacing tokens (8pt) — exposed for reference */
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-6: 24px;
+    --space-8: 32px;
+    --space-12: 48px;
+
+    /* Scrim gradients */
+    --scrim-top: linear-gradient(to bottom, rgba(0,0,0,0.55), transparent);
+    --scrim-bottom: linear-gradient(to top, rgba(0,0,0,0.88), transparent);
+
+    /* Text shadow for canvas legibility */
+    --shadow-canvas-text: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.5));
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  html, body, #root {
+    height: 100%;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Pretendard Variable', Pretendard, 'Noto Sans KR', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overscroll-behavior: none;
+  }
+}
+
+@layer components {
+  /* Typography tokens */
+  .type-display { font-family: 'Cormorant Garamond', serif; font-weight: 300; font-size: 48px; line-height: 1.2; }
+  .type-logo    { font-family: 'Cormorant Garamond', serif; font-weight: 300; font-size: 28px; line-height: 1.2; letter-spacing: 0.01em; }
+  .type-h1      { font-family: 'Pretendard Variable', Pretendard, sans-serif; font-weight: 700; font-size: 28px; line-height: 1.25; }
+  .type-h2      { font-family: 'Pretendard Variable', Pretendard, sans-serif; font-weight: 600; font-size: 20px; line-height: 1.3; }
+  .type-body    { font-family: 'Pretendard Variable', Pretendard, sans-serif; font-weight: 400; font-size: 16px; line-height: 1.7; }
+  .type-body-sm { font-family: 'Pretendard Variable', Pretendard, sans-serif; font-weight: 400; font-size: 14px; line-height: 1.6; }
+  .type-author  { font-family: 'Pretendard Variable', Pretendard, sans-serif; font-weight: 600; font-size: 14px; line-height: 1.4; }
+  .type-label   { font-family: 'Inter', sans-serif; font-weight: 500; font-size: 13px; line-height: 1.4; }
+  .type-caption { font-family: 'Inter', sans-serif; font-weight: 400; font-size: 11px; line-height: 1.5; }
+
+  /* Quote text — Moment DSG v3.0 §3.2 type-body
+     Pretendard / 16pt(dynamic) / 400 / 1.7
+     §3.3: 강조는 색상 또는 볼드 중 하나만 — 본문은 weight 400 유지
+     가독성은 §5.2 scrim + drop-shadow로 확보 */
+  .quote-text {
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    line-height: 1.7;
+    font-weight: 400;
+    letter-spacing: -0.005em;
+    font-family: 'Pretendard Variable', Pretendard, 'Noto Sans KR', sans-serif;
+    color: hsl(var(--text-primary));
+    filter: var(--shadow-canvas-text);
+    text-shadow:
+      0 2px 12px rgba(0, 0, 0, 0.55),
+      0 1px 3px rgba(0, 0, 0, 0.4);
+  }
+
+  .canvas-scrim-top {
+    background: var(--scrim-top);
+  }
+  .canvas-scrim-bottom {
+    background: var(--scrim-bottom);
+  }
+
+  /* Safe areas */
+  .safe-pt { padding-top: max(env(safe-area-inset-top), 12px); }
+  .safe-pb { padding-bottom: max(env(safe-area-inset-bottom), 12px); }
+
+  /* Touch target ensures min 44x44 */
+  .touch-target {
+    min-width: 44px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Skeleton shimmer */
+  .skeleton-shimmer {
+    background: linear-gradient(
+      90deg,
+      rgba(255,255,255,0.04) 0%,
+      rgba(255,255,255,0.10) 50%,
+      rgba(255,255,255,0.04) 100%
+    );
+    background-size: 200% 100%;
+    animation: skeleton-loop 1200ms linear infinite;
+  }
+
+  @keyframes skeleton-loop {
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+}
+
+@layer utilities {
+  /* Reduced motion: disable transitions/animations */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0ms !important;
+    }
+  }
+}
