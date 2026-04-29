@@ -61,10 +61,9 @@ export default function QuoteShareModal() {
   };
 
   const getCommentFontSize = (byte: number) => {
-    if (byte <= 30) return 15;
-    if (byte <= 60) return 13;
-    if (byte <= 80) return 11;
-    return 10;
+    if (byte <= 40) return 15;
+    if (byte <= 70) return 14;
+    return 12;
   };
 
   return (
@@ -153,6 +152,7 @@ export default function QuoteShareModal() {
                     placeholder="이 글귀를 전하고 싶은 분에게 한 줄을 남겨보세요."
                     placeholderTextColor="rgba(255,255,255,0.7)"
                     multiline
+                    scrollEnabled={false}
                     value={comment}
                     onChangeText={handleChangeText}
                     selectionColor="#E8491E"
@@ -359,20 +359,23 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     textAlign: 'center',
     fontStyle: 'italic',
-    paddingVertical: 2,
+    paddingTop: 8,
+    paddingBottom: 8,
+    minHeight: 40,
     fontWeight: '500',
   },
   letterDivider: {
     width: '60%',
     height: 1,
     backgroundColor: 'rgba(255,255,255,0.3)',
-    marginTop: 2,
+    marginTop: 8,
+    marginBottom: 12,
   },
   previewQuote: {
     fontSize: 14,
     color: '#FFF',
     textAlign: 'center',
-    lineHeight: 22,
+    lineHeight: 24,
     fontWeight: '600',
     marginBottom: 8,
   },
