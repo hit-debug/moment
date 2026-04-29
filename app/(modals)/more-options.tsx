@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, Pressable, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { X, EyeOff, AlertTriangle, MessageSquare } from 'lucide-react-native';
+import { X, EyeOff, Bookmark, MessageSquare } from 'lucide-react-native';
 
 export default function MoreOptionsModal() {
   const insets = useSafeAreaInsets();
@@ -10,8 +10,8 @@ export default function MoreOptionsModal() {
 
   const options = [
     { icon: EyeOff, label: '이 명언 다시 보지 않기', color: '#F4F3EF' },
+    { icon: Bookmark, label: '보관함에 저장하기', color: '#F4F3EF' },
     { icon: MessageSquare, label: '오타 또는 잘못된 정보 신고', color: '#F4F3EF' },
-    { icon: AlertTriangle, label: '부적절한 배경 이미지 신고', color: '#EF4444' },
   ];
 
   return (

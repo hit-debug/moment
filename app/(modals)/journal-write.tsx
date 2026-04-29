@@ -7,10 +7,20 @@ import {
   Pressable,
   KeyboardAvoidingView,
   Platform,
+  InteractionManager,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { X } from 'lucide-react-native';
+
+function getByteLength(str: string): number {
+  let byte = 0;
+  for (let i = 0; i < str.length; i++) {
+    const code = str.charCodeAt(i);
+    byte += code > 127 ? 2 : 1;
+  }
+  return byte;
+}
 
 export default function JournalWriteModal() {
   const router = useRouter();
@@ -19,15 +29,22 @@ export default function JournalWriteModal() {
   const [isFocused, setIsFocused] = useState(false);
   const inputRef = React.useRef<TextInput>(null);
 
-  const charLimit = 100; // KR limit
-  const currentLength = text.length;
+  const MAX_BYTE = 100;
+  const currentByte = getByteLength(text);
+
+  const handleChangeText = (val: string) => {
+    if (getByteLength(val) <= MAX_BYTE) {
+      setText(val);
+    }
+  };
 
   useEffect(() => {
-    // 애니메이션이 끝난 후 강제로 네이티브 키패드를 올립니다.
-    const timer = setTimeout(() => {
-      inputRef.current?.focus();
-    }, 400);
-    return () => clearTimeout(timer);
+    const task = InteractionManager.runAfterInteractions(() => {
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 300);
+    });
+    return () => task.cancel();
   }, []);
 
   return (
@@ -62,18 +79,18 @@ export default function JournalWriteModal() {
                 placeholder="이 글귀를 전하고 싶은 분에게 한 줄을 남겨보세요."
                 placeholderTextColor="rgba(244,243,239,0.3)"
                 multiline
-                maxLength={charLimit}
+                maxLength={MAX_BYTE}
                 value={text}
-                onChangeText={setText}
+                onChangeText={handleChangeText}
                 onFocus={() => setIsFocused(true)}
                 onBlur={() => setIsFocused(false)}
                 autoFocus
               />
               <Text style={[
                 styles.charCount,
-                currentLength >= charLimit && { color: '#E8491E' }
+                currentByte >= MAX_BYTE && { color: '#E8491E' }
               ]}>
-                {currentLength} / {charLimit}
+                {currentByte} / {MAX_BYTE} bytes
               </Text>
             </Pressable>
 

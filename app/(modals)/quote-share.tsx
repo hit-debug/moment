@@ -9,6 +9,7 @@ import {
   Platform,
   TextInput,
   KeyboardAvoidingView,
+  InteractionManager,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -40,10 +41,29 @@ export default function QuoteShareModal() {
   const currentByte = getByteLength(comment);
   const MAX_BYTE = 100;
 
+  const inputRef = React.useRef<TextInput>(null);
+
+  React.useEffect(() => {
+    if (isLetter) {
+      const task = InteractionManager.runAfterInteractions(() => {
+        setTimeout(() => {
+          inputRef.current?.focus();
+        }, 300);
+      });
+      return () => task.cancel();
+    }
+  }, [isLetter]);
+
   const handleChangeText = (text: string) => {
     if (getByteLength(text) <= MAX_BYTE) {
       setComment(text);
     }
+  };
+
+  const getCommentFontSize = (byte: number) => {
+    if (byte <= 40) return 15;
+    if (byte <= 70) return 13;
+    return 12;
   };
 
   return (
@@ -122,9 +142,13 @@ export default function QuoteShareModal() {
             
             <View style={styles.previewContent}>
               {isLetter && (
-                <View style={styles.letterArea}>
+                <Pressable 
+                  style={styles.letterArea}
+                  onPress={() => inputRef.current?.focus()}
+                >
                   <TextInput
-                    style={styles.letterInput}
+                    ref={inputRef}
+                    style={[styles.letterInput, { fontSize: getCommentFontSize(currentByte) }]}
                     placeholder="이 글귀를 전하고 싶은 분에게 한 줄을 남겨보세요."
                     placeholderTextColor="rgba(255,255,255,0.7)"
                     multiline
@@ -133,7 +157,7 @@ export default function QuoteShareModal() {
                     selectionColor="#E8491E"
                   />
                   <View style={styles.letterDivider} />
-                </View>
+                </Pressable>
               )}
               <Text style={[styles.previewQuote, isLetter && { fontSize: 13, marginTop: 8 }]}>
                 작은 전진이라도 매일 반복되면 결국 아무도 막을 수 없는 힘이 된다.
