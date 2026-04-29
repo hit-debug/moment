@@ -9,7 +9,7 @@ import {
   Platform,
   InteractionManager,
 } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { X } from 'lucide-react-native';
 
@@ -24,8 +24,9 @@ function getByteLength(str: string): number {
 
 export default function JournalWriteModal() {
   const router = useRouter();
+  const params = useLocalSearchParams<{ content?: string }>();
   const insets = useSafeAreaInsets();
-  const [text, setText] = useState('');
+  const [text, setText] = useState(params.content || '');
   const [isFocused, setIsFocused] = useState(false);
   const inputRef = React.useRef<TextInput>(null);
 
@@ -59,7 +60,7 @@ export default function JournalWriteModal() {
           <View style={styles.handle} />
           
           <View style={styles.header}>
-            <Text style={styles.title}>저널 기록</Text>
+            <Text style={styles.title}>{params.content ? '저널 수정' : '저널 기록'}</Text>
             <Pressable onPress={() => router.back()} style={styles.closeBtn}>
               <X size={24} color="rgba(244,243,239,0.5)" />
             </Pressable>
