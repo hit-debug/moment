@@ -232,7 +232,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     height: 44,
-    marginBottom: 16,
+    marginBottom: 8,
   },
   headerSide: {
     flex: 1,
@@ -264,7 +264,7 @@ const styles = StyleSheet.create({
   },
   modeToggleWrapper: {
     paddingHorizontal: 24,
-    marginBottom: 24,
+    marginBottom: 16,
   },
   modeToggle: {
     flexDirection: 'row',
@@ -306,11 +306,11 @@ const styles = StyleSheet.create({
     shadowRadius: 20,
   },
   previewFull: {
-    width: SCREEN_W * 0.55,
+    width: SCREEN_W * 0.46,
     aspectRatio: 9 / 16,
   },
   previewSquare: {
-    width: SCREEN_W * 0.75,
+    width: SCREEN_W * 0.65,
     aspectRatio: 1,
   },
   scrim: {

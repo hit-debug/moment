@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -21,6 +21,14 @@ export default function JournalWriteModal() {
 
   const charLimit = 100; // KR limit
   const currentLength = text.length;
+
+  useEffect(() => {
+    // 애니메이션이 끝난 후 강제로 네이티브 키패드를 올립니다.
+    const timer = setTimeout(() => {
+      inputRef.current?.focus();
+    }, 400);
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <View style={styles.container}>
