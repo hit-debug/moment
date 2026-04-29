@@ -1,7 +1,7 @@
 # ANTIGRAVITY.mobile.md — Moment React Native 앱 전용
 
 > 이 파일은 AGENTS.md보다 항상 우선한다.
-> Antigravity 세션 시작 시 AGENTS.md + 이 파일 + Moment_PRD_v2.6.md 를 함께 첨부한다.
+> Antigravity 세션 시작 시 AGENTS.md + 이 파일 + Moment_PRD_v2.7.md 를 함께 첨부한다.
 
 ---
 
@@ -24,7 +24,7 @@
 
 **스타일링 · UI**
 
-- **NativeWind v4** — Tailwind CSS 문법 → React Native 스타일
+- **React Native StyleSheet** — 순정 스타일링 방식 (프리미엄 디자인 제어)
 - **expo-image** — 이미지 렌더링 전담. React Native 기본 `Image` 컴포넌트 사용 **금지**
 - **react-native-reanimated v3** — 애니메이션
 - **@gorhom/bottom-sheet** — BottomSheet 전담 (R-008 저널 작성 등)

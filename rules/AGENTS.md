@@ -11,7 +11,7 @@
 | 항목 | 내용 |
 |---|---|
 | 앱명 | Moment |
-| PRD 버전 | v2.6 |
+| PRD 버전 | v2.7 |
 | 플랫폼 | iOS + Android (React Native) + 관리자 웹 (Next.js) |
 | MVP 라우터 수 | 23개 (R-001 ~ R-023) |
 | 백엔드 | Supabase (PostgreSQL + Auth + Storage + Edge Functions) |
@@ -61,7 +61,7 @@
 types/      ← TypeScript 인터페이스·타입 정의 (외부 의존성 없음)
 services/   ← Supabase API 호출 순수 함수 (React 의존성 없음)
 hooks/      ← TanStack Query 훅 + Zustand 스토어 (services/ 호출)
-app/        ← Expo Router 화면 + NativeWind UI (hooks/ 호출)
+app/        ← Expo Router 화면 + StyleSheet UI (hooks/ 호출)
 ```
 
 **핵심 규칙: 위에서 아래로만 참조한다. 역방향 참조 금지.**
