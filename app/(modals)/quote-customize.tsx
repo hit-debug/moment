@@ -164,7 +164,7 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 40,
     paddingHorizontal: 24,
     paddingTop: 12,
-    height: '75%',
+    height: '88%',
   },
   handle: {
     width: 40,
