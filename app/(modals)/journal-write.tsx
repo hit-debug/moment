@@ -17,6 +17,7 @@ export default function JournalWriteModal() {
   const insets = useSafeAreaInsets();
   const [text, setText] = useState('');
   const [isFocused, setIsFocused] = useState(false);
+  const inputRef = React.useRef<TextInput>(null);
 
   const charLimit = 100; // KR limit
   const currentLength = text.length;
@@ -40,11 +41,15 @@ export default function JournalWriteModal() {
           </View>
 
           <View style={styles.content}>
-            <View style={[
-              styles.inputContainer,
-              isFocused && styles.inputFocused
-            ]}>
+            <Pressable 
+              style={[
+                styles.inputContainer,
+                isFocused && styles.inputFocused
+              ]}
+              onPress={() => inputRef.current?.focus()}
+            >
               <TextInput
+                ref={inputRef}
                 style={styles.input}
                 placeholder="이 글귀를 전하고 싶은 분에게 한 줄을 남겨보세요."
                 placeholderTextColor="rgba(244,243,239,0.3)"
@@ -62,7 +67,7 @@ export default function JournalWriteModal() {
               ]}>
                 {currentLength} / {charLimit}
               </Text>
-            </View>
+            </Pressable>
 
             <Pressable 
               style={[styles.saveBtn, !text && styles.saveBtnDisabled]}
