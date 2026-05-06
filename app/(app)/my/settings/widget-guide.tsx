@@ -11,12 +11,12 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { ChevronLeft, Smartphone, Plus } from 'lucide-react-native';
-import { darkColors } from '@/tokens/colors';
+import { useThemeColors } from '@/stores/themeStore';
 
 export default function WidgetGuideScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const colors = darkColors;
+  const colors = useThemeColors();
 
   return (
     <View style={[styles.container, { backgroundColor: colors.bgDeep }]}>
@@ -24,7 +24,7 @@ export default function WidgetGuideScreen() {
         <Pressable onPress={() => router.back()} style={styles.backBtn}>
           <ChevronLeft size={24} color={colors.textPrimary} />
         </Pressable>
-        <Text style={styles.headerTitle}>위젯 설정 가이드</Text>
+        <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>위젯 설정 가이드</Text>
         <View style={{ width: 40 }} />
       </View>
 
@@ -36,37 +36,37 @@ export default function WidgetGuideScreen() {
           <View style={styles.iconCircle}>
             <Smartphone size={32} color={colors.actionCta} />
           </View>
-          <Text style={styles.heroTitle}>홈 화면에서 매일의{'\n'}영감을 확인하세요</Text>
-          <Text style={styles.heroDesc}>앱을 열지 않아도 명언을 바로 볼 수 있습니다.</Text>
+          <Text style={[styles.heroTitle, { color: colors.textPrimary }]}>홈 화면에서 매일의{'\n'}영감을 확인하세요</Text>
+          <Text style={[styles.heroDesc, { color: colors.textSecondary }]}>앱을 열지 않아도 명언을 바로 볼 수 있습니다.</Text>
         </View>
 
         <View style={styles.stepSection}>
-          <Text style={styles.sectionTitle}>설정 방법</Text>
+          <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>설정 방법</Text>
           
-          <View style={styles.stepCard}>
+          <View style={[styles.stepCard, { backgroundColor: colors.bgSurface }]}>
             <View style={styles.stepBadge}><Text style={styles.stepBadgeText}>1</Text></View>
-            <Text style={styles.stepText}>홈 화면의 빈 공간을 길게 누릅니다.</Text>
+            <Text style={[styles.stepText, { color: colors.textPrimary }]}>홈 화면의 빈 공간을 길게 누릅니다.</Text>
           </View>
 
-          <View style={styles.stepCard}>
+          <View style={[styles.stepCard, { backgroundColor: colors.bgSurface }]}>
             <View style={styles.stepBadge}><Text style={styles.stepBadgeText}>2</Text></View>
-            <Text style={styles.stepText}>
+            <Text style={[styles.stepText, { color: colors.textPrimary }]}>
               좌측 상단의 <Text style={styles.bold}>+</Text> 버튼(iOS) 또는 
               하단의 <Text style={styles.bold}>위젯</Text> 메뉴(Android)를 선택합니다.
             </Text>
           </View>
 
-          <View style={styles.stepCard}>
+          <View style={[styles.stepCard, { backgroundColor: colors.bgSurface }]}>
             <View style={styles.stepBadge}><Text style={styles.stepBadgeText}>3</Text></View>
-            <Text style={styles.stepText}>
+            <Text style={[styles.stepText, { color: colors.textPrimary }]}>
               <Text style={styles.bold}>Moment</Text>를 검색하여 원하는 사이즈의 위젯을 추가합니다.
             </Text>
           </View>
         </View>
 
-        <View style={styles.tipBox}>
-          <Text style={styles.tipTitle}>💡 TIP</Text>
-          <Text style={styles.tipText}>
+        <View style={[styles.tipBox, { backgroundColor: colors.bgSurface, borderColor: colors.divider }]}>
+          <Text style={[styles.tipTitle, { color: colors.textPrimary }]}>💡 TIP</Text>
+          <Text style={[styles.tipText, { color: colors.textSecondary }]}>
             위젯은 매일 자정 자동으로 새로운 명언으로 업데이트됩니다. 만약 업데이트가 되지 않는다면 앱을 한 번 실행해주세요.
           </Text>
         </View>

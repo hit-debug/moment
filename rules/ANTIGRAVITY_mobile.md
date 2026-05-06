@@ -1,7 +1,7 @@
 # ANTIGRAVITY.mobile.md — Moment React Native 앱 전용
 
 > 이 파일은 AGENTS.md보다 항상 우선한다.
-> Antigravity 세션 시작 시 AGENTS.md + 이 파일 + Moment_PRD_v2.7.md 를 함께 첨부한다.
+> Antigravity 세션 시작 시 AGENTS.md + 이 파일 + Moment_PRD_v2.8.md 를 함께 첨부한다.
 
 ---
 

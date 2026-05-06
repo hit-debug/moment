@@ -15,6 +15,7 @@ import {
   RotateCcw,
   EyeOff,
 } from 'lucide-react-native';
+import { useThemeColors } from '@/stores/themeStore';
 
 const MOCK_HIDDEN = [
   {
@@ -47,6 +48,7 @@ export default function HiddenScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const [items, setItems] = useState(MOCK_HIDDEN);
+  const colors = useThemeColors();
 
   const [isConfirmVisible, setIsConfirmVisible] = useState(false);
 
@@ -60,39 +62,39 @@ export default function HiddenScreen() {
   };
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
+    <View style={[styles.container, { paddingTop: insets.top, backgroundColor: colors.bgDeep }]}>
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerTop}>
           <Pressable onPress={() => router.back()} style={styles.backBtn}>
-            <ChevronLeft size={24} color="#F4F3EF" />
+            <ChevronLeft size={24} color={colors.textPrimary} />
           </Pressable>
-          <Text style={styles.headerTitle}>히든함</Text>
+          <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>히든함</Text>
           {items.length > 0 && (
             <Pressable onPress={() => setIsConfirmVisible(true)}>
-              <Text style={styles.restoreAllText}>전체 되돌리기</Text>
+              <Text style={[styles.restoreAllText, { color: colors.textSecondary }]}>전체 되돌리기</Text>
             </Pressable>
           )}
         </View>
         <View style={styles.headerSub}>
-          <Text style={styles.headerCount}>숨긴 명언 {items.length} / 20</Text>
+          <Text style={[styles.headerCount, { color: colors.textSecondary }]}>숨긴 명언 {items.length} / 20</Text>
         </View>
       </View>
 
       {items.length === 0 ? (
         /* Empty State */
         <View style={styles.emptyContainer}>
-          <View style={styles.emptyIconCircle}>
-            <EyeOff size={40} color="rgba(244,243,239,0.2)" strokeWidth={1.5} />
+          <View style={[styles.emptyIconCircle, { backgroundColor: colors.divider, borderColor: 'transparent' }]}>
+            <EyeOff size={40} color={colors.textSecondary} strokeWidth={1.5} />
           </View>
-          <Text style={styles.emptyTitle}>숨긴 명언이 없어요</Text>
-          <Text style={styles.emptyDesc}>싫어요를 누르면 이곳에 모여요</Text>
+          <Text style={[styles.emptyTitle, { color: colors.textPrimary }]}>숨긴 명언이 없어요</Text>
+          <Text style={[styles.emptyDesc, { color: colors.textSecondary }]}>싫어요를 누르면 이곳에 모여요</Text>
           
-          <Pressable style={styles.goBtn} onPress={() => router.push('/(app)/quote/today')}>
-            <Text style={styles.goBtnText}>명언 보러 가기</Text>
+          <Pressable style={[styles.goBtn, { backgroundColor: colors.divider }]} onPress={() => router.push('/(app)/quote/today')}>
+            <Text style={[styles.goBtnText, { color: colors.textPrimary }]}>명언 보러 가기</Text>
           </Pressable>
 
-          <Text style={styles.emptyInfo}>앱 재설치 시 숨긴 목록이 초기화됩니다</Text>
+          <Text style={[styles.emptyInfo, { color: colors.textSecondary }]}>앱 재설치 시 숨긴 목록이 초기화됩니다</Text>
         </View>
       ) : (
         /* List State */
@@ -101,34 +103,34 @@ export default function HiddenScreen() {
           contentContainerStyle={[styles.listContent, { paddingBottom: insets.bottom + 40 }]}
           showsVerticalScrollIndicator={false}
         >
-          <View style={styles.infoBanner}>
-            <EyeOff size={16} color="rgba(244,243,239,0.4)" />
-            <Text style={styles.infoBannerText}>숨긴 명언은 피드에 표시되지 않아요</Text>
+          <View style={[styles.infoBanner, { backgroundColor: colors.bgSurface, borderColor: colors.divider }]}>
+            <EyeOff size={16} color={colors.textSecondary} />
+            <Text style={[styles.infoBannerText, { color: colors.textSecondary }]}>숨긴 명언은 피드에 표시되지 않아요</Text>
           </View>
 
           {items.map((item) => (
-            <View key={item.id} style={styles.card}>
+            <View key={item.id} style={[styles.card, { backgroundColor: colors.bgSurface, borderColor: colors.divider }]}>
               <View style={styles.cardHeader}>
-                <View style={styles.tagWrapper}>
+                <View style={[styles.tagWrapper, { backgroundColor: colors.divider }]}>
                   <View style={[styles.tagDot, { backgroundColor: item.categoryColor }]} />
-                  <Text style={styles.tagText}>{item.category}</Text>
+                  <Text style={[styles.tagText, { color: colors.textPrimary }]}>{item.category}</Text>
                 </View>
-                <Text style={styles.cardDate}>{item.timeAgo}</Text>
+                <Text style={[styles.cardDate, { color: colors.textSecondary }]}>{item.timeAgo}</Text>
               </View>
               
-              <Text style={styles.quoteText}>"{item.text}"</Text>
-              <Text style={styles.authorText}>— {item.author}</Text>
+              <Text style={[styles.quoteText, { color: colors.textPrimary }]}>"{item.text}"</Text>
+              <Text style={[styles.authorText, { color: colors.textSecondary }]}>— {item.author}</Text>
 
               <View style={styles.cardFooter}>
-                <Pressable style={styles.restoreBtn} onPress={() => handleRestore(item.id)}>
-                  <RotateCcw size={16} color="rgba(244,243,239,0.6)" />
-                  <Text style={styles.restoreText}>복구</Text>
+                <Pressable style={[styles.restoreBtn, { backgroundColor: colors.divider }]} onPress={() => handleRestore(item.id)}>
+                  <RotateCcw size={16} color={colors.textSecondary} />
+                  <Text style={[styles.restoreText, { color: colors.textSecondary }]}>복구</Text>
                 </Pressable>
               </View>
             </View>
           ))}
           
-          <Text style={styles.listFooterInfo}>앱 재설치 시 숨긴 목록이 초기화됩니다</Text>
+          <Text style={[styles.listFooterInfo, { color: colors.textSecondary }]}>앱 재설치 시 숨긴 목록이 초기화됩니다</Text>
         </ScrollView>
       )}
 
@@ -136,16 +138,16 @@ export default function HiddenScreen() {
       {isConfirmVisible && (
         <View style={styles.modalOverlay}>
           <Pressable style={styles.modalBackdrop} onPress={() => setIsConfirmVisible(false)} />
-          <View style={[styles.sheetContainer, { paddingBottom: insets.bottom + 24 }]}>
-            <View style={styles.sheetHandle} />
+          <View style={[styles.sheetContainer, { paddingBottom: insets.bottom + 24, backgroundColor: colors.bgSurface }]}>
+            <View style={[styles.sheetHandle, { backgroundColor: colors.divider }]} />
             
             <View style={styles.sheetContent}>
-              <View style={styles.undoIconCircle}>
-                <RotateCcw size={32} color="#E8491E" strokeWidth={2.5} />
+              <View style={[styles.undoIconCircle, { backgroundColor: colors.isDark ? 'rgba(232, 73, 30, 0.1)' : 'rgba(232, 73, 30, 0.05)' }]}>
+                <RotateCcw size={32} color={colors.actionCta} strokeWidth={2.5} />
               </View>
               
-              <Text style={styles.sheetTitle}>모두 되돌릴까요?</Text>
-              <Text style={styles.sheetDesc}>
+              <Text style={[styles.sheetTitle, { color: colors.textPrimary }]}>모두 되돌릴까요?</Text>
+              <Text style={[styles.sheetDesc, { color: colors.textSecondary }]}>
                 숨긴 명언 {items.length}개가 다시 피드에 표시돼요
               </Text>
 
@@ -154,7 +156,7 @@ export default function HiddenScreen() {
               </Pressable>
 
               <Pressable style={styles.sheetCancelBtn} onPress={() => setIsConfirmVisible(false)}>
-                <Text style={styles.sheetCancelText}>취소</Text>
+                <Text style={[styles.sheetCancelText, { color: colors.textSecondary }]}>취소</Text>
               </Pressable>
             </View>
           </View>

@@ -6,6 +6,7 @@ import {
   ScrollView,
   Pressable,
   Platform,
+  Animated,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -13,7 +14,9 @@ import {
   ChevronLeft,
   Bookmark,
   ArrowRight,
+  Undo2,
 } from 'lucide-react-native';
+import { useThemeColors } from '@/stores/themeStore';
 
 const MOCK_SAVED = [
   {
@@ -45,19 +48,58 @@ const MOCK_SAVED = [
 export default function LibraryScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
+  const colors = useThemeColors();
   const [filter, setFilter] = useState('저장 순');
+  
+  const [bookmarks, setBookmarks] = useState(MOCK_SAVED);
+  const [toast, setToast] = useState<{ visible: boolean; item: any | null; timeoutId: ReturnType<typeof setTimeout> | null }>({
+    visible: false,
+    item: null,
+    timeoutId: null,
+  });
+  const toastOpacity = React.useRef(new Animated.Value(0)).current;
+
+  const showToast = (item: any) => {
+    if (toast.timeoutId) clearTimeout(toast.timeoutId);
+    setToast({ visible: true, item, timeoutId: null });
+    Animated.timing(toastOpacity, { toValue: 1, duration: 200, useNativeDriver: Platform.OS !== 'web' }).start();
+
+    const tid = setTimeout(() => {
+      hideToast();
+    }, 3000);
+    setToast(prev => ({ ...prev, timeoutId: tid }));
+  };
+
+  const hideToast = () => {
+    Animated.timing(toastOpacity, { toValue: 0, duration: 200, useNativeDriver: Platform.OS !== 'web' }).start(() => {
+      setToast({ visible: false, item: null, timeoutId: null });
+    });
+  };
+
+  const handleRemove = (item: any) => {
+    setBookmarks(prev => prev.filter(b => b.id !== item.id));
+    showToast(item);
+  };
+
+  const handleUndo = () => {
+    if (toast.item) {
+      setBookmarks(prev => [...prev, toast.item]);
+      if (toast.timeoutId) clearTimeout(toast.timeoutId);
+      hideToast();
+    }
+  };
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
+    <View style={[styles.container, { paddingTop: insets.top, backgroundColor: colors.bgDeep }]}>
       {/* Custom Header */}
       <View style={styles.header}>
         <View style={styles.headerTop}>
           <Pressable onPress={() => router.back()} style={styles.backBtn}>
-            <ChevronLeft size={24} color="#F4F3EF" />
+            <ChevronLeft size={24} color={colors.textPrimary} />
           </Pressable>
-          <Text style={styles.headerTitle}>보관함</Text>
-          <View style={styles.countBadge}>
-            <Text style={styles.countText}>28 / 30</Text>
+          <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>보관함</Text>
+          <View style={[styles.countBadge, { backgroundColor: colors.divider }]}>
+            <Text style={[styles.countText, { color: colors.textSecondary }]}>{bookmarks.length} / 30</Text>
           </View>
         </View>
         <View style={styles.progressBarTrack}>
@@ -71,9 +113,9 @@ export default function LibraryScreen() {
           <Pressable
             key={f}
             onPress={() => setFilter(f)}
-            style={[styles.filterChip, filter === f && styles.filterChipActive]}
+            style={[styles.filterChip, { backgroundColor: colors.divider }, filter === f && styles.filterChipActive]}
           >
-            <Text style={[styles.filterChipText, filter === f && styles.filterChipTextActive]}>
+            <Text style={[styles.filterChipText, { color: colors.textSecondary }, filter === f && styles.filterChipTextActive]}>
               {f}
             </Text>
           </Pressable>
@@ -86,33 +128,33 @@ export default function LibraryScreen() {
         contentContainerStyle={[styles.listContent, { paddingBottom: insets.bottom + 100 }]}
         showsVerticalScrollIndicator={false}
       >
-        {MOCK_SAVED.map((item) => (
-          <View key={item.id} style={styles.card}>
+        {bookmarks.map((item) => (
+          <View key={item.id} style={[styles.card, { backgroundColor: colors.bgSurface, borderColor: colors.divider }]}>
             <View style={styles.cardHeader}>
-              <View style={styles.tagWrapper}>
+              <View style={[styles.tagWrapper, { backgroundColor: colors.divider }]}>
                 <View style={[styles.tagDot, { backgroundColor: item.categoryColor }]} />
-                <Text style={styles.tagText}>{item.category}</Text>
+                <Text style={[styles.tagText, { color: colors.textPrimary }]}>{item.category}</Text>
               </View>
-              <Text style={styles.cardDate}>{item.date}</Text>
+              <Text style={[styles.cardDate, { color: colors.textSecondary }]}>{item.date}</Text>
             </View>
             
-            <Text style={styles.quoteText}>"{item.text}"</Text>
-            <Text style={styles.authorText}>— {item.author}</Text>
+            <Text style={[styles.quoteText, { color: colors.textPrimary }]}>"{item.text}"</Text>
+            <Text style={[styles.authorText, { color: colors.textSecondary }]}>— {item.author}</Text>
 
             <View style={styles.cardFooter}>
-              <Pressable style={styles.unsaveBtn}>
+              <Pressable style={[styles.unsaveBtn, { backgroundColor: colors.divider, borderColor: 'transparent' }]} onPress={() => handleRemove(item)}>
                 <Bookmark size={16} color="#E8491E" fill="#E8491E" />
-                <Text style={styles.unsaveText}>해제</Text>
+                <Text style={[styles.unsaveText, { color: colors.textSecondary }]}>해제</Text>
               </Pressable>
             </View>
           </View>
         ))}
 
         {/* Ad Banner */}
-        <Pressable style={styles.adBanner}>
+        <Pressable style={[styles.adBanner, !colors.isDark && { backgroundColor: '#F9FAFB', borderColor: 'rgba(232, 73, 30, 0.2)' }]}>
           <View style={styles.adLeft}>
             <Text style={styles.adTitle}>더 저장하려면?</Text>
-            <Text style={styles.adDesc}>광고를 보면 +20개 공간이 생겨요</Text>
+            <Text style={[styles.adDesc, { color: colors.textSecondary }]}>광고를 보면 +20개 공간이 생겨요</Text>
           </View>
           <View style={styles.adAction}>
             <Text style={styles.adActionText}>광고 보기</Text>
@@ -120,6 +162,22 @@ export default function LibraryScreen() {
           </View>
         </Pressable>
       </ScrollView>
+
+      {/* Toast */}
+      {toast.visible && (
+        <Animated.View
+          style={[
+            styles.toast,
+            { opacity: toastOpacity, bottom: insets.bottom + 90, backgroundColor: colors.isDark ? '#333' : '#2C2B27' },
+          ]}
+        >
+          <Text style={styles.toastText}>보관함에서 해제되었습니다</Text>
+          <Pressable style={styles.undoBtn} onPress={handleUndo}>
+            <Undo2 size={16} color="#E8491E" />
+            <Text style={styles.undoText}>취소</Text>
+          </Pressable>
+        </Animated.View>
+      )}
     </View>
   );
 }
@@ -306,5 +364,41 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '700',
     color: '#FFFFFF',
+  },
+  toast: {
+    position: 'absolute',
+    left: 24,
+    right: 24,
+    borderRadius: 16,
+    paddingVertical: 14,
+    paddingHorizontal: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    ...Platform.select({
+      web: { boxShadow: '0px 4px 20px rgba(0,0,0,0.3)' } as any,
+      ios: { shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 10 },
+      android: { elevation: 8 },
+    }),
+  },
+  toastText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '500',
+    flex: 1,
+  },
+  undoBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+    backgroundColor: 'rgba(232,73,30,0.15)',
+  },
+  undoText: {
+    color: '#E8491E',
+    fontSize: 13,
+    fontWeight: '700',
   },
 });

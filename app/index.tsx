@@ -20,7 +20,7 @@ export default function SplashScreen() {
       toValue: 1,
       tension: 50,
       friction: 7,
-      useNativeDriver: true,
+      useNativeDriver: Platform.OS !== 'web',
     }).start();
 
     // 2. 프로그레스 애니메이션 (2초간 1/3 진행)
@@ -32,7 +32,7 @@ export default function SplashScreen() {
     }).start(({ finished }) => {
       if (finished) {
         // 3. 2초 후 자동 라우팅
-        router.replace('/(app)/quote/today');
+        router.replace('/(app)/quote');
       }
     });
   }, [fadeAnim, progressAnim, router]);

@@ -12,72 +12,43 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useThemeColors } from '@/stores/themeStore';
 import {
   Share2,
   PenLine,
   Search,
   ChevronDown,
   X,
+  Trash2,
 } from 'lucide-react-native';
 
 const { width: SCREEN_W } = Dimensions.get('window');
 
-interface JournalEntry {
-  id: string;
-  date: string;
-  quoteText: string;
-  author: string;
-  userText: string;
-}
-
-const MOCK_JOURNALS: JournalEntry[] = [
-  {
-    id: 'j_1',
-    date: '2026년 4월 28일',
-    quoteText: '행동이 두려움을 없앤다',
-    author: '인디라 간디',
-    userText: '오늘 시작한 것만으로도 충분하다. 어제보다 조금 나은 오늘이면 된다.',
-  },
-  {
-    id: 'j_2',
-    date: '2026년 4월 27일',
-    quoteText: '성장은 편안함의 경계 너머에 있다',
-    author: '존 맥스웰',
-    userText: '오늘 새벽에 읽고 마음이 흔들렸다. 정말 편안한 자리를 떠날 용기가 있을까?',
-  },
-  {
-    id: 'j_3',
-    date: '2026년 4월 25일',
-    quoteText: '두려워해야 할 유일한 것은 두려움 자체다',
-    author: '루즈벨트',
-    userText: '면접 전날 이 문장을 읽었다. 심호흡하고 들어갔더니 생각보다 잘 됐다.',
-  },
-  {
-    id: 'j_4',
-    date: '2026년 4월 10일',
-    quoteText: '시작이 반이다',
-    author: '아리스토텔레스',
-    userText: '오랫동안 미뤄왔던 운동을 오늘 드디어 시작했다.',
-  },
-];
+import { useJournalStore } from '@/stores/journalStore';
 
 const FILTER_TABS = ['전체', '오늘', '이번 주', '월 선택'];
 
 export default function JournalListScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const colors = useThemeColors();
   const [activeTab, setActiveTab] = useState('전체');
   const [isSearchActive, setIsSearchActive] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
+  const [showMonthSelect, setShowMonthSelect] = useState(false);
+  const { journals, deleteJournal } = useJournalStore();
+
   const filteredJournals = useMemo(() => {
-    return MOCK_JOURNALS.filter(entry => {
-      // 1. Tab Filter
+    return journals.filter(entry => {
       if (activeTab === '오늘') {
-        if (!entry.date.includes('4월 28일')) return false; // Simple mock check
+        if (!entry.date.includes('4월 28일')) return false;
+      } else if (activeTab === '이번 주') {
+        if (!['4월 28일', '4월 27일', '4월 25일'].some(d => entry.date.includes(d))) return false;
+      } else if (activeTab.includes('월')) {
+        if (!entry.date.includes(activeTab)) return false;
       }
 
-      // 2. Search Filter
       if (searchQuery.trim()) {
         const query = searchQuery.toLowerCase();
         return (
@@ -91,15 +62,12 @@ export default function JournalListScreen() {
   }, [activeTab, searchQuery]);
 
   const handleMonthPress = () => {
-    Alert.alert(
-      '월 선택',
-      '조회할 월을 선택해 주세요.',
-      [
-        { text: '2026년 4월', onPress: () => setActiveTab('4월') },
-        { text: '2026년 3월', onPress: () => setActiveTab('3월') },
-        { text: '취소', style: 'cancel' }
-      ]
-    );
+    setShowMonthSelect(true);
+  };
+
+  const handleSelectMonth = (month: string) => {
+    setActiveTab(month);
+    setShowMonthSelect(false);
   };
 
   const handleTabPress = (tab: string) => {
@@ -121,10 +89,18 @@ export default function JournalListScreen() {
     });
   };
 
-  const handleEdit = (entry: JournalEntry) => {
+  const handleEdit = (entry: any) => {
+    if (!entry.date.includes('4월 28일')) {
+      if (Platform.OS === 'web') {
+        window.alert('수정은 당일 작성한 저널만 가능합니다.');
+      } else {
+        Alert.alert('수정 불가', '수정은 당일 작성한 저널만 가능합니다.');
+      }
+      return;
+    }
     router.push({
       pathname: '/(modals)/journal-write',
-      params: { content: entry.userText }
+      params: { id: entry.id, content: entry.userText }
     });
   };
 
@@ -138,8 +114,7 @@ export default function JournalListScreen() {
           text: '삭제', 
           style: 'destructive',
           onPress: () => {
-            // In a real app, call API/Store here
-            Alert.alert('삭제 완료', '저널이 삭제되었습니다.');
+            deleteJournal(id);
           }
         }
       ]
@@ -147,34 +122,33 @@ export default function JournalListScreen() {
   };
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
-      {/* Header Area */}
+    <View style={[styles.container, { paddingTop: insets.top, backgroundColor: colors.bgDeep }]}>
       <View style={styles.header}>
         {!isSearchActive ? (
           <>
             <View>
-              <Text style={styles.headerTitle}>저널</Text>
-              <Text style={styles.headerCount}>총 {filteredJournals.length}개</Text>
+              <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>저널</Text>
+              <Text style={[styles.headerCount, { color: colors.textSecondary }]}>총 {filteredJournals.length}개</Text>
             </View>
             <Pressable style={styles.searchBtn} onPress={() => setIsSearchActive(true)}>
-              <Search size={22} color="rgba(244,243,239,0.7)" strokeWidth={2} />
+              <Search size={22} color={colors.textSecondary} strokeWidth={2} />
             </Pressable>
           </>
         ) : (
           <View style={styles.searchContainer}>
-            <View style={styles.searchInputWrapper}>
-              <Search size={18} color="rgba(244,243,239,0.4)" style={styles.searchIcon} />
+            <View style={[styles.searchInputWrapper, { backgroundColor: colors.isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.05)' }]}>
+              <Search size={18} color={colors.textSecondary} style={styles.searchIcon} />
               <TextInput
-                style={styles.searchInput}
+                style={[styles.searchInput, { color: colors.textPrimary }]}
                 placeholder="저널 내용, 명언 검색"
-                placeholderTextColor="rgba(244,243,239,0.3)"
+                placeholderTextColor={colors.textSecondary}
                 value={searchQuery}
                 onChangeText={setSearchQuery}
                 autoFocus
               />
               {searchQuery.length > 0 && (
                 <Pressable onPress={() => setSearchQuery('')}>
-                  <X size={18} color="rgba(244,243,239,0.4)" />
+                  <X size={18} color={colors.textSecondary} />
                 </Pressable>
               )}
             </View>
@@ -182,13 +156,12 @@ export default function JournalListScreen() {
               setIsSearchActive(false);
               setSearchQuery('');
             }}>
-              <Text style={styles.cancelText}>취소</Text>
+              <Text style={[styles.cancelText, { color: colors.textSecondary }]}>취소</Text>
             </Pressable>
           </View>
         )}
       </View>
 
-      {/* Filter Tabs */}
       {!isSearchActive && (
         <View style={styles.filterContainer}>
           <ScrollView
@@ -204,15 +177,20 @@ export default function JournalListScreen() {
                   onPress={() => handleTabPress(tab)}
                   style={[
                     styles.filterTab,
-                    (isActive || (tab === '월 선택' && (activeTab === '4월' || activeTab === '3월'))) && styles.filterTabActive,
-                    tab === '월 선택' && styles.monthTab
+                    { backgroundColor: colors.isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)' },
+                    tab === '월 선택' && styles.monthTab,
+                    (isActive || (tab === '월 선택' && (activeTab === '4월' || activeTab === '3월'))) && { backgroundColor: colors.actionCta }
                   ]}
                 >
-                  <Text style={[styles.filterTabText, (isActive || (tab === '월 선택' && (activeTab === '4월' || activeTab === '3월'))) && styles.filterTabTextActive]}>
+                  <Text style={[
+                    styles.filterTabText, 
+                    { color: colors.textSecondary },
+                    (isActive || (tab === '월 선택' && (activeTab === '4월' || activeTab === '3월'))) && { color: '#FFFFFF' }
+                  ]}>
                     {tab === '월 선택' && (activeTab === '4월' || activeTab === '3월') ? activeTab : tab}
                   </Text>
                   {tab === '월 선택' && (
-                    <ChevronDown size={14} color={(isActive || activeTab === '4월' || activeTab === '3월') ? '#FFFFFF' : 'rgba(244,243,239,0.45)'} style={{ marginLeft: 4 }} />
+                    <ChevronDown size={14} color={(isActive || activeTab === '4월' || activeTab === '3월') ? '#FFFFFF' : colors.textSecondary} style={{ marginLeft: 4 }} />
                   )}
                 </Pressable>
               );
@@ -221,64 +199,98 @@ export default function JournalListScreen() {
         </View>
       )}
 
-      {/* Journal List */}
       <ScrollView
         style={styles.list}
         contentContainerStyle={[styles.listContent, { paddingBottom: insets.bottom + 100 }]}
         showsVerticalScrollIndicator={false}
       >
         {filteredJournals.map((entry) => (
-          <View key={entry.id} style={styles.card}>
-            {/* Card Header */}
+          <View key={entry.id} style={[styles.card, { backgroundColor: colors.bgSurface, borderColor: colors.divider }]}>
             <View style={styles.cardHeader}>
-              <Text style={styles.dateText}>{entry.date}</Text>
+              <Text style={[styles.dateText, { color: colors.textSecondary }]}>{entry.date}</Text>
               <View style={styles.cardActions}>
-                <Pressable style={styles.actionBtn} onPress={() => handleShare(entry)}>
-                  <Share2 size={16} color="rgba(244,243,239,0.6)" />
-                  <Text style={styles.actionBtnText}>공유</Text>
+                <Pressable 
+                  style={[styles.actionBtn, { backgroundColor: colors.isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)' }]} 
+                  onPress={() => handleShare(entry)}
+                >
+                  <Share2 size={14} color={colors.textSecondary} />
+                  <Text style={[styles.actionBtnText, { color: colors.textSecondary }]}>공유</Text>
                 </Pressable>
-                <Pressable style={[styles.actionBtn, styles.editBtn]} onPress={() => handleEdit(entry)}>
-                  <PenLine size={16} color="#E8491E" />
-                  <Text style={[styles.actionBtnText, styles.editBtnText]}>수정</Text>
-                </Pressable>
+                {entry.date.includes('4월 28일') && (
+                  <Pressable 
+                    style={[styles.actionBtn, styles.editBtn, { borderColor: colors.actionCta + '40' }]} 
+                    onPress={() => handleEdit(entry)}
+                  >
+                    <PenLine size={14} color={colors.actionCta} />
+                    <Text style={[styles.actionBtnText, { color: colors.actionCta }]}>수정</Text>
+                  </Pressable>
+                )}
                 <Pressable style={styles.deleteBtn} onPress={() => handleDelete(entry.id)}>
                   <X size={16} color="rgba(244,243,239,0.3)" />
                 </Pressable>
               </View>
             </View>
 
-            {/* Quote Section */}
+            {/* Quote Section (디자인 튜닝 적용) */}
             <View style={styles.quoteBox}>
-              <Text style={styles.quoteText}>"{entry.quoteText}"</Text>
-              <Text style={styles.authorText}>— {entry.author}</Text>
+              <Text style={[styles.quoteText, { color: colors.textPrimary }]}>"{entry.quoteText}"</Text>
+              <Text style={[styles.authorText, { color: colors.textSecondary }]}>— {entry.author}</Text>
             </View>
 
             {/* User Text Section */}
             <View style={styles.userTextBox}>
-              <Text style={styles.userText}>{entry.userText}</Text>
+              <Text style={[styles.userText, { color: colors.textPrimary }]}>{entry.userText}</Text>
             </View>
           </View>
         ))}
 
+        {/* PRD Empty State 분기 처리 */}
         {filteredJournals.length === 0 && (
           <View style={styles.emptyContainer}>
             <View style={styles.emptyIconCircle}>
               <PenLine size={32} color="rgba(244,243,239,0.15)" />
             </View>
-            <Text style={styles.emptyText}>검색 결과가 없습니다.</Text>
-            <Text style={styles.emptySubText}>다른 키워드로 검색해 보거나{"\n"}전체 탭에서 기록을 확인해 보세요.</Text>
+            
+            {isSearchActive || (activeTab !== '전체' && MOCK_JOURNALS.length > 0) ? (
+              // 검색 결과 없음 또는 특정 탭 필터 결과 없음
+              <>
+                <Text style={[styles.emptyText, { color: colors.textPrimary }]}>검색 결과가 없습니다.</Text>
+                <Text style={[styles.emptySubText, { color: colors.textSecondary }]}>다른 키워드로 검색해 보거나{"\n"}전체 탭에서 기록을 확인해 보세요.</Text>
+              </>
+            ) : (
+              // 전체 기록이 없는 경우 (PRD R-009)
+              <>
+                <Text style={[styles.emptyText, { color: colors.textPrimary }]}>아직 작성한 저널이 없어요.</Text>
+                <Text style={[styles.emptySubText, { color: colors.textSecondary }]}>지금 명언에 대한 첫 번째 기록을 남겨보세요.</Text>
+                <Pressable style={styles.homeBtn} onPress={() => router.push('/(app)/quote')}>
+                  <Text style={styles.homeBtnText}>명언 보러 가기</Text>
+                </Pressable>
+              </>
+            )}
           </View>
         )}
       </ScrollView>
 
-      {/* Floating Action Button */}
-      {!isSearchActive && (
-        <Pressable 
-          style={[styles.fab, { bottom: insets.bottom + 24 }]}
-          onPress={() => router.push('/(modals)/journal-write')}
-        >
-          <PenLine size={24} color="#FFFFFF" />
-        </Pressable>
+      {/* Month Selection Bottom Sheet (Web Compatible) */}
+      {showMonthSelect && (
+        <View style={styles.modalOverlay}>
+          <Pressable style={StyleSheet.absoluteFill} onPress={() => setShowMonthSelect(false)} />
+          <View style={[styles.actionSheet, { paddingBottom: insets.bottom + 20, backgroundColor: colors.bgSurface }]}>
+            <Text style={[styles.sheetTitle, { color: colors.textSecondary }]}>월 선택</Text>
+            <Pressable style={styles.sheetItem} onPress={() => handleSelectMonth('4월')}>
+              <Text style={[styles.sheetItemText, { color: colors.textPrimary }]}>2026년 4월</Text>
+            </Pressable>
+            <Pressable style={styles.sheetItem} onPress={() => handleSelectMonth('3월')}>
+              <Text style={[styles.sheetItemText, { color: colors.textPrimary }]}>2026년 3월</Text>
+            </Pressable>
+            <Pressable style={styles.sheetItem} onPress={() => handleSelectMonth('전체')}>
+              <Text style={[styles.sheetItemText, { color: colors.textPrimary }]}>전체 보기</Text>
+            </Pressable>
+            <Pressable style={[styles.sheetCancelBtn, { borderTopColor: colors.divider }]} onPress={() => setShowMonthSelect(false)}>
+              <Text style={[styles.sheetCancelText, { color: colors.textSecondary }]}>취소</Text>
+            </Pressable>
+          </View>
+        </View>
       )}
     </View>
   );
@@ -487,20 +499,57 @@ const styles = StyleSheet.create({
     color: 'rgba(244,243,239,0.3)',
     textAlign: 'center',
     lineHeight: 20,
+    marginBottom: 24,
   },
-  fab: {
-    position: 'absolute',
-    right: 24,
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+  homeBtn: {
     backgroundColor: '#E8491E',
-    alignItems: 'center',
-    justifyContent: 'center',
-    elevation: 8,
-    shadowColor: '#E8491E',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 20,
+  },
+  homeBtnText: {
+    color: '#FFFFFF',
+    fontSize: 15,
+    fontWeight: '600',
+  },
+  modalOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'flex-end',
+    zIndex: 100,
+  },
+  actionSheet: {
+    backgroundColor: '#1F2937',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: 20,
+  },
+  sheetTitle: {
+    fontSize: 16,
+    color: 'rgba(244,243,239,0.5)',
+    textAlign: 'center',
+    marginBottom: 16,
+    fontWeight: '600',
+  },
+  sheetItem: {
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255,255,255,0.05)',
+  },
+  sheetItemText: {
+    fontSize: 16,
+    color: '#F4F3EF',
+    textAlign: 'center',
+    fontWeight: '500',
+  },
+  sheetCancelBtn: {
+    paddingVertical: 16,
+    marginTop: 8,
+  },
+  sheetCancelText: {
+    fontSize: 16,
+    color: '#E8491E',
+    textAlign: 'center',
+    fontWeight: '600',
   },
 });

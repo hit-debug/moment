@@ -14,21 +14,29 @@ import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { X, Check } from 'lucide-react-native';
 
+import { useThemeStore, useThemeColors } from '@/stores/themeStore';
+
 const { width: SCREEN_W } = Dimensions.get('window');
 
 const THEME_CATEGORIES = ['전체', '자연', '도시', '감성'];
 const FONTS = [
-  { id: 'f1', name: 'Pretendard', family: 'System' },
+  { id: 'f1', name: 'Pretendard', family: Platform.OS === 'ios' ? 'System' : 'sans-serif' },
   { id: 'f2', name: '나눔명조', family: 'serif' },
-  { id: 'f3', name: 'Inter', family: 'sans-serif' },
+  { id: 'f3', name: '본고딕', family: Platform.OS === 'web' ? "'Noto Sans KR', sans-serif" : 'sans-serif' },
+  { id: 'f4', name: '나눔스퀘어라운드', family: Platform.OS === 'web' ? "'NanumSquareRound', sans-serif" : 'sans-serif' },
+  { id: 'f5', name: '고운바탕', family: Platform.OS === 'web' ? "'GowunBatang', serif" : 'serif' },
+  { id: 'f6', name: '고운돋움', family: Platform.OS === 'web' ? "'GowunDodum', sans-serif" : 'sans-serif' },
 ];
 
 export default function QuoteCustomizeModal() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const themeStore = useThemeStore();
+  const colors = useThemeColors();
+  
   const [selectedCategory, setSelectedCategory] = useState('전체');
-  const [selectedFont, setSelectedFont] = useState('f1');
-  const [selectedThemeId, setSelectedThemeId] = useState(1);
+  const [selectedFont, setSelectedFont] = useState(themeStore.selectedFontId);
+  const [selectedThemeId, setSelectedThemeId] = useState(themeStore.selectedThemeId);
 
   const getThemeImage = (id: number) => {
     const images = [
@@ -46,13 +54,13 @@ export default function QuoteCustomizeModal() {
   return (
     <View style={styles.container}>
       <Pressable style={styles.backdrop} onPress={() => router.back()} />
-      <View style={[styles.sheet, { paddingBottom: insets.bottom + 20 }]}>
-        <View style={styles.handle} />
+      <View style={[styles.sheet, { paddingBottom: insets.bottom + 20, backgroundColor: colors.bgSurface }]}>
+        <View style={[styles.handle, { backgroundColor: colors.divider }]} />
         
         <View style={styles.header}>
-          <Text style={styles.title}>테마 설정</Text>
+          <Text style={[styles.title, { color: colors.textPrimary }]}>Moment Look</Text>
           <Pressable onPress={() => router.back()} style={styles.closeBtn}>
-            <X size={24} color="rgba(244,243,239,0.5)" />
+            <X size={24} color={colors.textSecondary} />
           </Pressable>
         </View>
 
@@ -81,15 +89,15 @@ export default function QuoteCustomizeModal() {
         <ScrollView showsVerticalScrollIndicator={false}>
           {/* Theme Categories */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>배경 테마</Text>
+            <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>배경</Text>
             <View style={styles.categoryList}>
               {THEME_CATEGORIES.map((cat) => (
                 <Pressable 
                   key={cat} 
-                  style={[styles.categoryBtn, selectedCategory === cat && styles.categoryBtnActive]}
+                  style={[styles.categoryBtn, { backgroundColor: colors.isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)' }, selectedCategory === cat && { backgroundColor: colors.textPrimary }]}
                   onPress={() => setSelectedCategory(cat)}
                 >
-                  <Text style={[styles.categoryText, selectedCategory === cat && styles.categoryTextActive]}>
+                  <Text style={[styles.categoryText, { color: colors.textSecondary }, selectedCategory === cat && { color: colors.bgSurface }]}>
                     {cat}
                   </Text>
                 </Pressable>
@@ -107,7 +115,7 @@ export default function QuoteCustomizeModal() {
                     source={{ uri: getThemeImage(i) }}
                     style={styles.themeImagePlaceholder} 
                   />
-                  <Text style={[styles.themeName, selectedThemeId === i && styles.themeNameActive]}>테마 {i}</Text>
+                  <Text style={[styles.themeName, selectedThemeId === i && styles.themeNameActive]}>Look {i}</Text>
                   {selectedThemeId === i && (
                     <View style={styles.checkBadge}>
                       <Check size={10} color="#FFF" strokeWidth={4} />
@@ -120,18 +128,22 @@ export default function QuoteCustomizeModal() {
 
           {/* Font Selection */}
           <View style={[styles.section, { marginTop: 32 }]}>
-            <Text style={styles.sectionTitle}>폰트 설정</Text>
+            <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>폰트</Text>
             <View style={styles.fontList}>
               {FONTS.map((font) => (
                 <Pressable 
                   key={font.id} 
-                  style={[styles.fontBtn, selectedFont === font.id && styles.fontBtnActive]}
+                  style={[
+                    styles.fontBtn, 
+                    { backgroundColor: colors.isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)' },
+                    selectedFont === font.id && { backgroundColor: colors.actionCta + '15', borderColor: colors.actionCta, borderWidth: 1 }
+                  ]}
                   onPress={() => setSelectedFont(font.id)}
                 >
                   <Text style={[
                     styles.fontText, 
-                    { fontFamily: font.family },
-                    selectedFont === font.id && styles.fontTextActive
+                    { fontFamily: font.family, color: colors.textSecondary },
+                    selectedFont === font.id && { color: colors.actionCta, fontWeight: '700' }
                   ]}>
                     {font.name}
                   </Text>
@@ -140,7 +152,17 @@ export default function QuoteCustomizeModal() {
             </View>
           </View>
 
-          <Pressable style={styles.applyBtn} onPress={() => router.back()}>
+          <Pressable 
+            style={styles.applyBtn} 
+            onPress={() => {
+              const font = FONTS.find(f => f.id === selectedFont);
+              if (font) {
+                themeStore.setFont(font.id, font.family);
+              }
+              themeStore.setTheme(selectedThemeId, getThemeImage(selectedThemeId));
+              router.back();
+            }}
+          >
             <Text style={styles.applyBtnText}>적용하기</Text>
           </Pressable>
         </ScrollView>
@@ -164,7 +186,7 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 40,
     paddingHorizontal: 24,
     paddingTop: 12,
-    height: '88%',
+    height: '95%',
   },
   handle: {
     width: 40,
@@ -300,10 +322,13 @@ const styles = StyleSheet.create({
   },
   fontList: {
     flexDirection: 'row',
-    gap: 8,
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    rowGap: 10,
+    columnGap: 8,
   },
   fontBtn: {
-    flex: 1,
+    width: '31%',
     height: 48,
     borderRadius: 12,
     backgroundColor: 'rgba(255,255,255,0.04)',

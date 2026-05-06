@@ -10,12 +10,15 @@ import {
   StatusBar,
   StyleSheet,
   Platform,
+  Alert,
 } from 'react-native';
+import { Image as ExpoImage } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Heart, PenLine, Share2, MoreHorizontal, Palette } from 'lucide-react-native';
+import { Heart, PenLine, Share2, MoreHorizontal, Palette, Lock } from 'lucide-react-native';
 import { mockQuotes, type MockQuote } from '@/data/mockQuotes';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
+import { useThemeStore, useThemeColors } from '@/stores/themeStore';
 
 const { width: SCREEN_W } = Dimensions.get('window');
 const SWIPE_THRESHOLD = 60;
@@ -36,31 +39,36 @@ function InlineActionBar({
   onShare,
   onJournal,
   onMore,
+  isDark,
 }: {
   isLiked: boolean;
   onLike: () => void;
   onShare: () => void;
   onJournal: () => void;
   onMore: () => void;
+  isDark: boolean;
 }) {
+  const iconColor = isDark ? 'rgba(244,243,239,0.85)' : 'rgba(0,0,0,0.65)';
+  const dockBg = isDark ? 'rgba(0,0,0,0.7)' : 'rgba(255,255,255,0.85)';
+  const dockBorder = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)';
   return (
-    <View style={styles.dockContainer}>
+    <View style={[styles.dockContainer, { backgroundColor: dockBg, borderColor: dockBorder }]}>
       <Pressable onPress={onLike} style={styles.iconBtn}>
         <Heart 
           size={22} 
-          color={isLiked ? '#E8607A' : 'rgba(244,243,239,0.85)'} 
+          color={isLiked ? '#E8607A' : iconColor} 
           fill={isLiked ? '#E8607A' : 'none'} 
           strokeWidth={2} 
         />
       </Pressable>
       <Pressable onPress={onJournal} style={styles.iconBtn}>
-        <PenLine size={22} color="rgba(244,243,239,0.85)" strokeWidth={2} />
+        <PenLine size={22} color={iconColor} strokeWidth={2} />
       </Pressable>
       <Pressable onPress={onShare} style={styles.iconBtn}>
         <Share2 size={22} color="#E8491E" strokeWidth={2.25} />
       </Pressable>
       <Pressable onPress={onMore} style={styles.iconBtn}>
-        <MoreHorizontal size={22} color="rgba(244,243,239,0.85)" strokeWidth={2} />
+        <MoreHorizontal size={22} color={iconColor} strokeWidth={2} />
       </Pressable>
     </View>
   );
@@ -84,27 +92,16 @@ function QuoteCanvas({
   onShare: () => void;
   onMore: () => void;
 }) {
+  const { selectedFontFamily } = useThemeStore();
+  const colors = useThemeColors();
   const fontSize = getQuoteFontSize(quote.text);
   const visibleCategories = quote.categories.slice(0, 2);
 
+  // 폰트 스타일 객체
+  const textStyle = { fontFamily: selectedFontFamily };
+
   return (
     <View style={styles.canvasContainer}>
-      <Image
-        source={{ uri: quote.bg_image || 'https://images.unsplash.com/photo-1497215848147-750f003714b6' }}
-        style={StyleSheet.absoluteFillObject}
-        resizeMode="cover"
-      />
-      
-      {/* Top/Bottom Scrims */}
-      <LinearGradient
-        colors={['rgba(0,0,0,0.6)', 'transparent']}
-        style={[styles.scrimTop, { pointerEvents: 'none' }]}
-      />
-      <LinearGradient
-        colors={['transparent', 'rgba(0,0,0,0.8)']}
-        style={[styles.scrimBottom, { pointerEvents: 'none' }]}
-      />
-
       <View style={styles.contentWrapper}>
         <View style={styles.contentInner}>
           
@@ -118,10 +115,10 @@ function QuoteCanvas({
           </View>
 
           {/* Quote Mark */}
-          <Text style={styles.quoteMark}>"</Text>
+          <Text style={[styles.quoteMark, textStyle]}>"</Text>
 
           {/* Body Text */}
-          <Text style={[styles.quoteBody, { fontSize, lineHeight: fontSize * 1.6 }]}>
+          <Text style={[styles.quoteBody, { fontSize, lineHeight: fontSize * 1.6 }, textStyle]}>
             {quote.text}
           </Text>
 
@@ -129,11 +126,11 @@ function QuoteCanvas({
           <View style={styles.divider} />
 
           {/* Author */}
-          <Text style={styles.authorText}>{quote.author}</Text>
+          <Text style={[styles.authorText, textStyle]}>{quote.author}</Text>
 
           {/* Author Role */}
           {quote.authorRole && (
-            <Text style={styles.authorRoleText}>{quote.authorRole}</Text>
+            <Text style={[styles.authorRoleText, textStyle]}>{quote.authorRole}</Text>
           )}
 
           {/* Action Dock */}
@@ -144,6 +141,7 @@ function QuoteCanvas({
               onJournal={onJournal}
               onShare={onShare}
               onMore={onMore}
+              isDark={colors.isDark}
             />
           </View>
         </View>
@@ -157,6 +155,7 @@ function QuoteCanvas({
 /* ------------------------------------------------------------------ */
 export default function QuoteTodayScreen() {
   const router = useRouter();
+  const themeStore = useThemeStore();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [likedIds, setLikedIds] = useState<Set<string>>(new Set());
   const [userStatus, setUserStatus] = useState<'guest' | 'free' | 'subscribed'>('subscribed');
@@ -210,28 +209,91 @@ export default function QuoteTodayScreen() {
     });
   };
 
+  const handleJournal = () => {
+    if (userStatus === 'guest') {
+      if (Platform.OS === 'web') {
+        window.alert('로그인이 필요합니다.\n저널 기능은 무료 회원 이상 이용할 수 있습니다.');
+      } else {
+        Alert.alert('로그인 필요', '저널 기능은 무료 회원 이상 이용할 수 있습니다.', [{ text: '확인' }]);
+      }
+      return;
+    }
+    router.push('/(modals)/journal-write');
+  };
+
+  const handleShare = () => {
+    const params = {
+      quote: currentQuote.text,
+      author: currentQuote.author,
+    };
+    if (userStatus === 'guest') {
+      router.push({ pathname: '/(modals)/quote-share', params: { ...params, guestMode: 'true' } } as any);
+      return;
+    }
+    router.push({ pathname: '/(modals)/quote-share', params } as any);
+  };
+
+  const handleCustomize = () => {
+    if (userStatus === 'guest') {
+      if (Platform.OS === 'web') {
+        window.alert('Moment Look 기능은 로그인 후 이용할 수 있습니다.');
+      } else {
+        Alert.alert('로그인 필요', 'Moment Look 기능은 로그인 후 이용할 수 있습니다.', [{ text: '확인' }]);
+      }
+      return;
+    }
+    router.push('/(modals)/quote-customize');
+  };
+
+  const handleMore = () => {
+    router.push('/(modals)/more-options');
+  };
+
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
 
+      {/* 고정된 배경 이미지 및 그라데이션 */}
+      <View style={StyleSheet.absoluteFill}>
+        <ExpoImage
+          source={(() => {
+            const base = themeStore.selectedThemeImage || currentQuote?.bg_image || 'https://images.unsplash.com/photo-1497215848147-750f003714b6';
+            const sep = base.includes('?') ? '&' : '?';
+            return base + sep + 'q=80&w=1080&auto=format&fit=crop';
+          })()}
+          style={StyleSheet.absoluteFillObject}
+          contentFit="cover"
+          transition={500}
+        />
+        <LinearGradient
+          colors={['rgba(0,0,0,0.6)', 'transparent']}
+          style={[styles.scrimTop, { pointerEvents: 'none' }]}
+        />
+        <LinearGradient
+          colors={['transparent', 'rgba(0,0,0,0.8)']}
+          style={[styles.scrimBottom, { pointerEvents: 'none' }]}
+        />
+      </View>
+
       {currentQuote && (
         <Animated.View
-          style={[styles.container, { transform: [{ translateX }] }]}
+          style={[styles.container, { transform: [{ translateX }], backgroundColor: 'transparent' }]}
           {...panResponder.panHandlers}
         >
           <QuoteCanvas
+            key={currentQuote.id}
             quote={currentQuote}
             isLiked={isLiked}
             onLike={handleLike}
-            onJournal={() => router.push('/(modals)/journal-write')}
-            onShare={() => router.push('/(modals)/quote-share')}
-            onMore={() => router.push('/(modals)/more-options')}
+            onJournal={handleJournal}
+            onShare={handleShare}
+            onMore={handleMore}
           />
         </Animated.View>
       )}
 
       {/* Header */}
-      <View style={[styles.header, { paddingTop: Math.max(insets.top, 24) }]}>
+      <View style={[styles.header, { top: Math.max(insets.top, 24) }]}>
         <View style={styles.headerLeft}>
           <Text style={styles.logoText}>Moment</Text>
         </View>
@@ -253,11 +315,23 @@ export default function QuoteTodayScreen() {
 
         <Pressable 
           style={styles.headerBtn}
-          onPress={() => router.push('/(modals)/quote-customize')}
+          onPress={handleCustomize}
         >
-          <Palette size={24} color="#F4F3EF" />
+          {userStatus === 'guest' ? (
+            <Lock size={20} color="rgba(244,243,239,0.4)" />
+          ) : (
+            <Palette size={24} color="#F4F3EF" />
+          )}
         </Pressable>
       </View>
+
+      {/* User Status Badge */}
+      {userStatus === 'guest' && (
+        <View style={styles.guestBadge}>
+          <Lock size={12} color="#FFF" />
+          <Text style={styles.guestBadgeText}>Guest Mode</Text>
+        </View>
+      )}
 
       {/* Pagination Dots */}
       <View style={styles.paginationContainer}>
@@ -278,11 +352,11 @@ export default function QuoteTodayScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#111111',
+    backgroundColor: 'transparent',
   },
   canvasContainer: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: '#111111',
+    backgroundColor: 'transparent',
   },
   scrimTop: {
     position: 'absolute',
@@ -348,6 +422,11 @@ const styles = StyleSheet.create({
     textShadowColor: 'rgba(0,0,0,0.5)',
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 4,
+    ...Platform.select({
+      web: {
+        wordBreak: 'keep-all',
+      } as any,
+    }),
   },
   divider: {
     width: 32,
@@ -395,15 +474,14 @@ const styles = StyleSheet.create({
   },
   header: {
     position: 'absolute',
-    top: 0,
     left: 0,
     right: 0,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 20,
-    paddingBottom: 12,
-    zIndex: 20,
+    zIndex: 100,
+    elevation: 100,
   },
   headerLeft: {
     width: 110,
@@ -441,10 +519,17 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
   },
   headerBtn: {
-    width: 110,
-    alignItems: 'flex-end',
-    justifyContent: 'center',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    gap: 6,
     height: 44,
+  },
+  headerBtnText: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: 'rgba(244,243,239,0.8)',
+    letterSpacing: 0.5,
   },
   paginationContainer: {
     position: 'absolute',
@@ -467,5 +552,23 @@ const styles = StyleSheet.create({
   dotInactive: {
     width: 6,
     backgroundColor: 'rgba(244,243,239,0.4)',
+  },
+  guestBadge: {
+    position: 'absolute',
+    bottom: 140,
+    alignSelf: 'center',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 20,
+  },
+  guestBadgeText: {
+    color: '#FFFFFF',
+    fontSize: 12,
+    fontWeight: '600',
+    letterSpacing: 0.5,
   },
 });

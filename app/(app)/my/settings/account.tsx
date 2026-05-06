@@ -15,13 +15,12 @@ import {
   Trash2,
   LogOut,
 } from 'lucide-react-native';
-import { darkColors } from '@/tokens/colors';
+import { useThemeColors } from '@/stores/themeStore';
 
 export default function AccountSettingsScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
-
-  const colors = darkColors;
+  const colors = useThemeColors();
 
   const handleLogout = () => {
     Alert.alert('로그아웃', '정말 로그아웃 하시겠습니까?', [
@@ -43,7 +42,7 @@ export default function AccountSettingsScreen() {
         <Pressable onPress={() => router.back()} style={styles.backBtn}>
           <ChevronLeft size={24} color={colors.textPrimary} />
         </Pressable>
-        <Text style={styles.headerTitle}>계정 관리</Text>
+        <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>계정 관리</Text>
         <View style={{ width: 40 }} />
       </View>
 
@@ -52,43 +51,43 @@ export default function AccountSettingsScreen() {
         showsVerticalScrollIndicator={false}
       >
         {/* Profile Card */}
-        <View style={styles.profileCard}>
+        <View style={[styles.profileCard, { backgroundColor: colors.bgSurface }]}>
           <View style={styles.profileInfo}>
             <View style={styles.avatar}>
               <Text style={styles.avatarText}>M</Text>
             </View>
             <View>
-              <Text style={styles.userName}>moment_user</Text>
-              <Text style={styles.userEmail}>user@example.com</Text>
+              <Text style={[styles.userName, { color: colors.textPrimary }]}>moment_user</Text>
+              <Text style={[styles.userEmail, { color: colors.textSecondary }]}>user@example.com</Text>
             </View>
           </View>
           
-          <View style={styles.divider} />
+          <View style={[styles.divider, { backgroundColor: colors.divider }]} />
           
           <View style={styles.socialInfo}>
             <View style={styles.googleIcon}>
               <Text style={{ fontSize: 12 }}>G</Text>
             </View>
-            <Text style={styles.socialText}>Google 계정으로 연결됨</Text>
+            <Text style={[styles.socialText, { color: colors.textSecondary }]}>Google 계정으로 연결됨</Text>
           </View>
-          <Text style={styles.joinDate}>2026년 1월 가입</Text>
+          <Text style={[styles.joinDate, { color: colors.textSecondary }]}>2026년 1월 가입</Text>
         </View>
 
         {/* Menu Items */}
         <View style={styles.menuContainer}>
-          <Text style={styles.menuLabel}>계정</Text>
+          <Text style={[styles.menuLabel, { color: colors.textSecondary }]}>계정</Text>
           
-          <Pressable style={styles.menuItem} onPress={handleLogout}>
-            <Text style={styles.menuItemText}>로그아웃</Text>
-            <ChevronRight size={20} color="rgba(244,243,239,0.2)" />
+          <Pressable style={[styles.menuItem, { backgroundColor: colors.bgSurface }]} onPress={handleLogout}>
+            <Text style={[styles.menuItemText, { color: colors.textPrimary }]}>로그아웃</Text>
+            <ChevronRight size={20} color={colors.textSecondary} />
           </Pressable>
 
-          <Pressable style={styles.menuItem} onPress={handleDeleteAccount}>
+          <Pressable style={[styles.menuItem, { backgroundColor: colors.bgSurface }]} onPress={handleDeleteAccount}>
             <View style={styles.menuItemRow}>
               <Trash2 size={18} color="#EF4444" style={{ marginRight: 8 }} />
               <Text style={[styles.menuItemText, { color: '#EF4444' }]}>계정 삭제</Text>
             </View>
-            <ChevronRight size={20} color="rgba(244,243,239,0.2)" />
+            <ChevronRight size={20} color={colors.textSecondary} />
           </Pressable>
         </View>
       </ScrollView>

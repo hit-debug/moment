@@ -3,35 +3,37 @@ import { View, Text, StyleSheet, Pressable, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { X, EyeOff, Bookmark, MessageSquare } from 'lucide-react-native';
+import { useThemeColors } from '@/stores/themeStore';
 
 export default function MoreOptionsModal() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
+  const colors = useThemeColors();
 
   const options = [
-    { icon: EyeOff, label: '이 명언 다시 보지 않기', color: '#F4F3EF' },
-    { icon: Bookmark, label: '보관함에 저장하기', color: '#F4F3EF' },
-    { icon: MessageSquare, label: '오타 또는 잘못된 정보 신고', color: '#F4F3EF' },
+    { icon: EyeOff, label: '이 명언 다시 보지 않기' },
+    { icon: Bookmark, label: '보관함에 저장하기' },
+    { icon: MessageSquare, label: '오타 또는 잘못된 정보 신고' },
   ];
 
   return (
     <View style={styles.container}>
       <Pressable style={styles.backdrop} onPress={() => router.back()} />
-      <View style={[styles.sheet, { paddingBottom: insets.bottom + 20 }]}>
-        <View style={styles.handle} />
+      <View style={[styles.sheet, { paddingBottom: insets.bottom + 20, backgroundColor: colors.bgSurface }]}>
+        <View style={[styles.handle, { backgroundColor: colors.divider }]} />
         
         <View style={styles.header}>
-          <Text style={styles.title}>더 보기</Text>
+          <Text style={[styles.title, { color: colors.textPrimary }]}>더 보기</Text>
           <Pressable onPress={() => router.back()} style={styles.closeBtn}>
-            <X size={24} color="rgba(244,243,239,0.5)" />
+            <X size={24} color={colors.textSecondary} />
           </Pressable>
         </View>
 
         <View style={styles.optionsList}>
           {options.map((opt, idx) => (
             <Pressable key={idx} style={styles.optionItem}>
-              <opt.icon size={22} color={opt.color} style={{ marginRight: 16 }} />
-              <Text style={[styles.optionLabel, { color: opt.color }]}>{opt.label}</Text>
+              <opt.icon size={22} color={colors.textPrimary} style={{ marginRight: 16 }} />
+              <Text style={[styles.optionLabel, { color: colors.textPrimary }]}>{opt.label}</Text>
             </Pressable>
           ))}
         </View>

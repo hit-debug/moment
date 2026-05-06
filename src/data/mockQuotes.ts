@@ -19,6 +19,7 @@ export const mockQuotes: MockQuote[] = [
     author: '키케로',
     authorRole: 'ROMAN PHILOSOPHER',
     categories: ['지혜'],
+    bg_image: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&q=80&w=2000',
   },
   {
     id: 'q_002',
@@ -26,6 +27,7 @@ export const mockQuotes: MockQuote[] = [
     author: '알베르 카뮈',
     authorRole: 'FRENCH AUTHOR',
     categories: ['행복'],
+    bg_image: 'https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&q=80&w=2000',
   },
   {
     id: 'q_003',
@@ -33,6 +35,7 @@ export const mockQuotes: MockQuote[] = [
     author: '프랭클린 D. 루즈벨트',
     authorRole: '32ND U.S. PRESIDENT',
     categories: ['용기'],
+    bg_image: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&q=80&w=2000',
   },
   {
     id: 'q_004',
@@ -40,6 +43,7 @@ export const mockQuotes: MockQuote[] = [
     author: '마르셀 프루스트',
     authorRole: 'FRENCH NOVELIST',
     categories: ['성장', '지혜'],
+    bg_image: 'https://images.unsplash.com/photo-1433838552652-f9a46b332c40?auto=format&fit=crop&q=80&w=2000',
   },
   {
     id: 'q_005',
@@ -47,6 +51,7 @@ export const mockQuotes: MockQuote[] = [
     author: '허버드',
     authorRole: 'AMERICAN WRITER',
     categories: ['행복'],
+    bg_image: 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&q=80&w=2000',
   },
   {
     id: 'q_006',
@@ -54,6 +59,7 @@ export const mockQuotes: MockQuote[] = [
     author: '공자',
     authorRole: 'CHINESE PHILOSOPHER',
     categories: ['용기', '성장'],
+    bg_image: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&q=80&w=2000',
   },
   {
     id: 'q_007',
@@ -61,5 +67,6 @@ export const mockQuotes: MockQuote[] = [
     author: '아이작 뉴턴',
     authorRole: 'ENGLISH PHYSICIST',
     categories: ['노력'],
+    bg_image: 'https://images.unsplash.com/photo-1502082553048-f009c37129b9?auto=format&fit=crop&q=80&w=2000',
   },
 ];

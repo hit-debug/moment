@@ -17,7 +17,7 @@ import {
   ArrowRight,
   Plus,
 } from 'lucide-react-native';
-import { darkColors, lightColors } from '@/tokens/colors';
+import { useThemeColors } from '@/stores/themeStore';
 import { typography } from '@/tokens/typography';
 import { spacing, borderRadius } from '@/tokens/spacing';
 
@@ -28,7 +28,7 @@ export default function SubscriptionScreen() {
   const router = useRouter();
   const [isYearly, setIsYearly] = useState(true);
 
-  const colors = darkColors; // 다크 모드 고정 (디자인 가이드 기반)
+  const colors = useThemeColors();
 
   const features = [
     '광고 없는 깨끗한 경험',
@@ -58,10 +58,10 @@ export default function SubscriptionScreen() {
           <View style={styles.crownWrapper}>
             <Crown size={40} color={colors.actionCta} fill={colors.actionCta} />
           </View>
-          <Text style={styles.heroTitle}>
+          <Text style={[styles.heroTitle, { color: colors.textPrimary }]}>
             Moment <Text style={styles.proItalic}>Pro</Text>
           </Text>
-          <Text style={styles.heroSubtitle}>
+          <Text style={[styles.heroSubtitle, { color: colors.textSecondary }]}>
             오늘의 명언이 내일의 습관이 됩니다
           </Text>
         </View>
@@ -69,32 +69,32 @@ export default function SubscriptionScreen() {
         {/* Features List */}
         <View style={styles.featuresContainer}>
           {features.map((feature, idx) => (
-            <View key={idx} style={styles.featureItem}>
+            <View key={idx} style={[styles.featureItem, { borderBottomColor: colors.divider }]}>
               <View style={styles.featureIcon}>
                 <Plus size={16} color={colors.actionCta} strokeWidth={3} />
               </View>
-              <Text style={styles.featureText}>{feature}</Text>
+              <Text style={[styles.featureText, { color: colors.textPrimary }]}>{feature}</Text>
             </View>
           ))}
         </View>
 
         {/* Toggle Container */}
         <View style={styles.toggleWrapper}>
-          <View style={styles.toggleTrack}>
+          <View style={[styles.toggleTrack, { backgroundColor: colors.bgSurface }]}>
             <Pressable 
-              style={[styles.toggleBtn, !isYearly && styles.toggleBtnActive]} 
+              style={[styles.toggleBtn, !isYearly && [styles.toggleBtnActive, { backgroundColor: colors.isDark ? '#2C2C2E' : '#FFFFFF' }]]} 
               onPress={() => setIsYearly(false)}
             >
-              <Text style={[styles.toggleBtnText, !isYearly && styles.toggleBtnTextActive]}>
+              <Text style={[styles.toggleBtnText, { color: colors.textSecondary }, !isYearly && [styles.toggleBtnTextActive, { color: colors.textPrimary }]]}>
                 월간
               </Text>
             </Pressable>
             <Pressable 
-              style={[styles.toggleBtn, isYearly && styles.toggleBtnActive]} 
+              style={[styles.toggleBtn, isYearly && [styles.toggleBtnActive, { backgroundColor: colors.isDark ? '#2C2C2E' : '#FFFFFF' }]]} 
               onPress={() => setIsYearly(true)}
             >
               <View style={styles.yearlyLabelWrapper}>
-                <Text style={[styles.toggleBtnText, isYearly && styles.toggleBtnTextActive]}>
+                <Text style={[styles.toggleBtnText, { color: colors.textSecondary }, isYearly && [styles.toggleBtnTextActive, { color: colors.textPrimary }]]}>
                   연간
                 </Text>
                 <View style={styles.badge}>
@@ -107,8 +107,8 @@ export default function SubscriptionScreen() {
 
         {/* Price Info */}
         <View style={styles.priceContainer}>
-          <Text style={styles.priceMain}>
-            ₩?.???<Text style={styles.priceSub}>/월 (연간 결제)</Text>
+          <Text style={[styles.priceMain, { color: colors.textPrimary }]}>
+            ₩?.???<Text style={[styles.priceSub, { color: colors.textSecondary }]}>/월 (연간 결제)</Text>
           </Text>
           <Text style={styles.priceDetail}>
             연간 결제 시 월간 대비 15% 절약
@@ -121,7 +121,7 @@ export default function SubscriptionScreen() {
         </Pressable>
 
         <Pressable style={styles.restoreBtn}>
-          <Text style={styles.restoreText}>Restore Purchase</Text>
+          <Text style={[styles.restoreText, { color: colors.textSecondary }]}>Restore Purchase</Text>
         </Pressable>
       </ScrollView>
     </View>

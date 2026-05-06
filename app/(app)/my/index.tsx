@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
+import { useThemeColors } from '@/stores/themeStore';
 import {
   PenLine,
   ChevronRight,
@@ -31,7 +32,7 @@ const MENU_CONTENT = [
 
 const MENU_SETTINGS = [
   { id: 'notif', title: '알림 설정', icon: Bell, route: '/(app)/my/settings/notification' },
-  { id: 'theme', title: '테마 설정', icon: Palette, route: '/(modals)/quote-customize' },
+  { id: 'theme', title: '시스템 테마', icon: Palette, route: '/(app)/my/settings/system-theme' },
   { id: 'reset', title: '명언 선호 재설정', icon: RotateCcw, route: '/(app)/my/settings/quote-pref' },
   { id: 'account', title: '계정 관리', icon: User, route: '/(app)/my/settings/account' },
   { id: 'widget', title: '위젯 가이드', icon: Smartphone, route: '/(app)/my/settings/widget-guide' },
@@ -41,50 +42,51 @@ const MENU_SETTINGS = [
 export default function MyScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
+  const colors = useThemeColors();
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
+    <View style={[styles.container, { paddingTop: insets.top, backgroundColor: colors.bgDeep }]}>
       <ScrollView 
-        contentContainerStyle={[styles.scrollContent, { paddingBottom: insets.bottom + 40 }]}
+        contentContainerStyle={[styles.scrollContent, { paddingBottom: insets.bottom + 120 }]}
         showsVerticalScrollIndicator={false}
       >
         {/* Profile Section */}
-        <View style={styles.profileCard}>
+        <View style={[styles.profileCard, { backgroundColor: colors.bgSurface, borderColor: colors.divider }]}>
           <View style={styles.avatarContainer}>
-            <View style={styles.avatar}>
+            <View style={[styles.avatar, { backgroundColor: colors.actionCta }]}>
               <Text style={styles.avatarInitial}>M</Text>
             </View>
           </View>
           <View style={styles.profileInfo}>
-            <Text style={styles.userName}>moment_user</Text>
-            <Text style={styles.userEmail}>user@example.com</Text>
+            <Text style={[styles.userName, { color: colors.textPrimary }]}>moment_user</Text>
+            <Text style={[styles.userEmail, { color: colors.textSecondary }]}>user@example.com</Text>
           </View>
           <Pressable style={styles.editProfileBtn}>
-            <PenLine size={20} color="rgba(244,243,239,0.5)" />
+            <PenLine size={20} color={colors.textSecondary} />
           </Pressable>
         </View>
 
         {/* Pro Banner */}
         <Pressable 
-          style={styles.proBanner}
+          style={[styles.proBanner, !colors.isDark && { backgroundColor: 'rgba(232, 73, 30, 0.08)' }]}
           onPress={() => router.push('/(app)/my/subscription')}
         >
           <View style={styles.proLeft}>
-            <View style={styles.crownCircle}>
-              <Crown size={16} color="#FFD700" fill="#FFD700" />
+            <View style={[styles.crownCircle, !colors.isDark && { backgroundColor: 'rgba(232, 73, 30, 0.15)' }]}>
+              <Crown size={16} color={colors.isDark ? "#FFD700" : "#E8491E"} fill={colors.isDark ? "#FFD700" : "#E8491E"} />
             </View>
             <View>
-              <Text style={styles.proTitle}>Moment Pro로 업그레이드</Text>
-              <Text style={styles.proDesc}>광고 제거 · 보관함 확장 · 내보내기</Text>
+              <Text style={[styles.proTitle, { color: colors.textPrimary }]}>Moment Pro로 업그레이드</Text>
+              <Text style={[styles.proDesc, { color: colors.textSecondary }]}>광고 제거 · 보관함 확장 · 내보내기</Text>
             </View>
           </View>
-          <ChevronRight size={18} color="#FFFFFF" />
+          <ChevronRight size={18} color={colors.textSecondary} />
         </Pressable>
 
         {/* Content Section */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>내 콘텐츠</Text>
-          <View style={styles.menuGroup}>
+          <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>내 콘텐츠</Text>
+          <View style={[styles.menuGroup, { backgroundColor: colors.bgSurface, borderColor: colors.divider }]}>
             {MENU_CONTENT.map((item) => (
               <Pressable 
                 key={item.id} 
@@ -92,14 +94,14 @@ export default function MyScreen() {
                 onPress={() => item.route && router.push(item.route as any)}
               >
                 <View style={styles.menuItemLeft}>
-                  <item.icon size={20} color="#E8607A" strokeWidth={2} />
-                  <Text style={styles.menuItemText}>{item.title}</Text>
+                  <item.icon size={20} color={colors.emotionLike} strokeWidth={2} />
+                  <Text style={[styles.menuItemText, { color: colors.textPrimary }]}>{item.title}</Text>
                 </View>
                 <View style={styles.menuItemRight}>
-                  <View style={styles.countBadge}>
-                    <Text style={styles.countText}>{item.count}</Text>
+                  <View style={[styles.countBadge, { backgroundColor: colors.isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)' }]}>
+                    <Text style={[styles.countText, { color: colors.textPrimary }]}>{item.count}</Text>
                   </View>
-                  <ChevronRight size={18} color="rgba(244,243,239,0.25)" />
+                  <ChevronRight size={18} color={colors.textSecondary} />
                 </View>
               </Pressable>
             ))}
@@ -108,8 +110,8 @@ export default function MyScreen() {
 
         {/* Settings Section */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>설정</Text>
-          <View style={styles.menuGroup}>
+          <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>설정</Text>
+          <View style={[styles.menuGroup, { backgroundColor: colors.bgSurface, borderColor: colors.divider }]}>
             {MENU_SETTINGS.map((item, idx) => (
               <React.Fragment key={item.id}>
                 <Pressable 
@@ -117,25 +119,25 @@ export default function MyScreen() {
                   onPress={() => item.route && router.push(item.route as any)}
                 >
                   <View style={styles.menuItemLeft}>
-                    <item.icon size={20} color="rgba(244,243,239,0.6)" strokeWidth={1.5} />
-                    <Text style={styles.menuItemText}>{item.title}</Text>
+                    <item.icon size={20} color={colors.textSecondary} strokeWidth={1.5} />
+                    <Text style={[styles.menuItemText, { color: colors.textPrimary }]}>{item.title}</Text>
                   </View>
                   <View style={styles.menuItemRight}>
                     {item.value && (
-                      <Text style={styles.menuValueText}>{item.value}</Text>
+                      <Text style={[styles.menuValueText, { color: colors.textSecondary }]}>{item.value}</Text>
                     )}
-                    <ChevronRight size={18} color="rgba(244,243,239,0.25)" />
+                    <ChevronRight size={18} color={colors.textSecondary} />
                   </View>
                 </Pressable>
-                {idx < MENU_SETTINGS.length - 1 && <View style={styles.divider} />}
+                {idx < MENU_SETTINGS.length - 1 && <View style={[styles.divider, { backgroundColor: colors.divider }]} />}
               </React.Fragment>
             ))}
           </View>
         </View>
 
         {/* Logout Button */}
-        <Pressable style={styles.logoutBtn}>
-          <Text style={styles.logoutText}>로그아웃</Text>
+        <Pressable style={[styles.logoutBtn, { backgroundColor: colors.bgSurface, borderColor: colors.divider }]}>
+          <Text style={[styles.logoutText, { color: colors.textSecondary }]}>로그아웃</Text>
         </Pressable>
       </ScrollView>
     </View>

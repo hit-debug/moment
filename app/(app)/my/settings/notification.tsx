@@ -15,15 +15,14 @@ import {
   Minus,
   Plus,
 } from 'lucide-react-native';
-import { darkColors } from '@/tokens/colors';
+import { useThemeColors } from '@/stores/themeStore';
 
 export default function NotificationSettingsScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const [isEnabled, setIsEnabled] = useState(true);
   const [frequency, setFrequency] = useState(4);
-
-  const colors = darkColors;
+  const colors = useThemeColors();
 
   return (
     <View style={[styles.container, { backgroundColor: colors.bgDeep }]}>
@@ -31,7 +30,7 @@ export default function NotificationSettingsScreen() {
         <Pressable onPress={() => router.back()} style={styles.backBtn}>
           <ChevronLeft size={24} color={colors.textPrimary} />
         </Pressable>
-        <Text style={styles.headerTitle}>알림 설정</Text>
+        <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>알림 설정</Text>
         <View style={{ width: 40 }} />
       </View>
 
@@ -40,11 +39,11 @@ export default function NotificationSettingsScreen() {
         showsVerticalScrollIndicator={false}
       >
         {/* Toggle Section */}
-        <View style={styles.section}>
+        <View style={[styles.section, { backgroundColor: colors.bgSurface }]}>
           <View style={styles.row}>
             <View>
-              <Text style={styles.rowTitle}>명언 알림 받기</Text>
-              <Text style={styles.rowDesc}>하루의 시작을 명언으로</Text>
+              <Text style={[styles.rowTitle, { color: colors.textPrimary }]}>명언 알림 받기</Text>
+              <Text style={[styles.rowDesc, { color: colors.textSecondary }]}>하루의 시작을 명언으로</Text>
             </View>
             <Switch
               trackColor={{ false: '#3A3A3C', true: '#E8491E' }}
@@ -57,42 +56,42 @@ export default function NotificationSettingsScreen() {
         </View>
 
         {/* Frequency Section */}
-        <View style={styles.section}>
-          <Text style={styles.sectionLabel}>하루 알림 횟수</Text>
+        <View style={[styles.section, { backgroundColor: colors.bgSurface }]}>
+          <Text style={[styles.sectionLabel, { color: colors.textSecondary }]}>하루 알림 횟수</Text>
           <View style={styles.frequencyControl}>
             <Pressable 
-              style={styles.controlBtn} 
+              style={[styles.controlBtn, { backgroundColor: colors.divider }]} 
               onPress={() => setFrequency(Math.max(1, frequency - 1))}
             >
-              <Minus size={20} color="rgba(244,243,239,0.4)" strokeWidth={3} />
+              <Minus size={20} color={colors.textSecondary} strokeWidth={3} />
             </Pressable>
-            <Text style={styles.frequencyValue}>
+            <Text style={[styles.frequencyValue, { color: colors.textPrimary }]}>
               <Text style={styles.freqHighlight}>{frequency}</Text> 회
             </Text>
             <Pressable 
-              style={styles.controlBtn} 
+              style={[styles.controlBtn, { backgroundColor: colors.divider }]} 
               onPress={() => setFrequency(Math.min(10, frequency + 1))}
             >
-              <Plus size={20} color="rgba(244,243,239,0.4)" strokeWidth={3} />
+              <Plus size={20} color={colors.textSecondary} strokeWidth={3} />
             </Pressable>
           </View>
         </View>
 
         {/* Time Range Section */}
-        <View style={styles.section}>
-          <Text style={styles.sectionLabel}>알림 받을 시간대</Text>
+        <View style={[styles.section, { backgroundColor: colors.bgSurface }]}>
+          <Text style={[styles.sectionLabel, { color: colors.textSecondary }]}>알림 받을 시간대</Text>
           <View style={styles.timeRangeWrapper}>
-            <View style={styles.timeCard}>
-              <Text style={styles.timeCardLabel}>시작 시간</Text>
-              <Text style={styles.timeValue}>오전 07:00</Text>
+            <View style={[styles.timeCard, { backgroundColor: colors.divider }]}>
+              <Text style={[styles.timeCardLabel, { color: colors.textSecondary }]}>시작 시간</Text>
+              <Text style={[styles.timeValue, { color: colors.textPrimary }]}>오전 07:00</Text>
             </View>
-            <Text style={styles.timeSeparator}>~</Text>
-            <View style={styles.timeCard}>
-              <Text style={styles.timeCardLabel}>종료 시간</Text>
-              <Text style={styles.timeValue}>오후 22:00</Text>
+            <Text style={[styles.timeSeparator, { color: colors.textSecondary }]}>~</Text>
+            <View style={[styles.timeCard, { backgroundColor: colors.divider }]}>
+              <Text style={[styles.timeCardLabel, { color: colors.textSecondary }]}>종료 시간</Text>
+              <Text style={[styles.timeValue, { color: colors.textPrimary }]}>오후 22:00</Text>
             </View>
           </View>
-          <Text style={styles.sectionInfo}>
+          <Text style={[styles.sectionInfo, { color: colors.textSecondary }]}>
             설정한 시간대 안에서 고르게 분산 발송됩니다
           </Text>
         </View>

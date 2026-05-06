@@ -3,6 +3,7 @@ import { Tabs } from 'expo-router';
 import { View, StyleSheet, Pressable, Text, Platform, Dimensions } from 'react-native';
 import { Quote, BookOpen, CircleUser } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useThemeStore, useThemeColors } from '@/stores/themeStore';
 
 const { width: SCREEN_W } = Dimensions.get('window');
 
@@ -12,10 +13,11 @@ const { width: SCREEN_W } = Dimensions.get('window');
  */
 function CustomTabBar({ state, descriptors, navigation }: any) {
   const insets = useSafeAreaInsets();
+  const colors = useThemeColors();
   
   return (
     <View style={[styles.tabBarWrapper, { bottom: Math.max(insets.bottom, 20) }]}>
-      <View style={styles.tabBarContainer}>
+      <View style={[styles.tabBarContainer, !colors.isDark && { backgroundColor: 'rgba(255,255,255,0.95)', borderColor: 'rgba(0,0,0,0.08)' }]}>
         {state.routes.map((route: any, index: number) => {
           // 'library' 탭은 시안에 없으므로 제외 (필요시 '마이' 내부로 이동)
           if (route.name === 'library') return null;
@@ -47,7 +49,7 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
           }
 
           const activeColor = '#E8491E';
-          const inactiveColor = 'rgba(244,243,239,0.4)';
+          const inactiveColor = colors.isDark ? 'rgba(244,243,239,0.4)' : 'rgba(0,0,0,0.4)';
           const color = isFocused ? activeColor : inactiveColor;
 
           return (
@@ -136,6 +138,10 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     paddingHorizontal: 10,
     ...Platform.select({
+      web: {
+        // 웹 환경: 최신 boxShadow 표준 속성 사용
+        boxShadow: '0px 10px 40px rgba(0, 0, 0, 0.4)',
+      } as any,
       ios: {
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 10 },
