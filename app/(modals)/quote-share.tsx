@@ -93,7 +93,7 @@ export default function QuoteShareModal() {
       <View style={[
         styles.sheet, 
         { paddingBottom: Math.max(insets.bottom, 20), backgroundColor: colors.bgSurface },
-        isJournalShare && { maxHeight: '90%' },
+        isJournalShare && { maxHeight: '84%' },
       ]}>
         <View style={[styles.handle, { backgroundColor: colors.divider }]} />
         
@@ -148,7 +148,7 @@ export default function QuoteShareModal() {
           <View style={[
             styles.previewCard,
             format === 'square' ? styles.previewSquare : styles.previewFull,
-            isJournalShare && (format === 'square' ? { width: SCREEN_W - 48 } : { width: SCREEN_W - 108 })
+            isJournalShare && (format === 'square' ? { width: SCREEN_W * 0.72 } : { width: SCREEN_W * 0.62 })
           ]}>
             <Image 
               source={{ uri: bgImageUri }}
@@ -295,7 +295,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 40,
     borderTopRightRadius: 40,
     paddingTop: 12,
-    maxHeight: '94%',
+    maxHeight: '88%',
   },
   handle: {
     width: 40,
@@ -385,11 +385,11 @@ const styles = StyleSheet.create({
     shadowRadius: 20,
   },
   previewFull: {
-    width: SCREEN_W * 0.52,
+    width: SCREEN_W * 0.48,
     aspectRatio: 9 / 16,
   },
   previewSquare: {
-    width: SCREEN_W * 0.8,
+    width: SCREEN_W * 0.72,
     aspectRatio: 1,
   },
   scrim: {

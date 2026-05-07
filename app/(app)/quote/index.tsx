@@ -161,6 +161,7 @@ export default function QuoteTodayScreen() {
   const [userStatus, setUserStatus] = useState<'guest' | 'free' | 'subscribed'>('subscribed');
   const translateX = useRef(new Animated.Value(0)).current;
   const insets = useSafeAreaInsets();
+  const colors = useThemeColors();
 
   const quotes = mockQuotes;
   const currentQuote = quotes[currentIndex];
@@ -250,7 +251,7 @@ export default function QuoteTodayScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.bgDeep }]}>
       <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
 
       {/* 고정된 배경 이미지 및 그라데이션 */}
@@ -258,8 +259,12 @@ export default function QuoteTodayScreen() {
         <ExpoImage
           source={(() => {
             const base = themeStore.selectedThemeImage || currentQuote?.bg_image || 'https://images.unsplash.com/photo-1497215848147-750f003714b6';
-            const sep = base.includes('?') ? '&' : '?';
-            return base + sep + 'q=80&w=1080&auto=format&fit=crop';
+            // 이미 파라미터가 포함되어 있다면 중복 방지를 위해 기본 base만 사용하거나 필터링
+            if (base.includes('?')) {
+              // 기존 파라미터가 있는 경우, q=80&w=1080 등이 이미 포함되어 있을 수 있으므로 정규화
+              return base.split('?')[0] + '?q=80&w=1080&auto=format&fit=crop';
+            }
+            return base + '?q=80&w=1080&auto=format&fit=crop';
           })()}
           style={StyleSheet.absoluteFillObject}
           contentFit="cover"
@@ -277,7 +282,7 @@ export default function QuoteTodayScreen() {
 
       {currentQuote && (
         <Animated.View
-          style={[styles.container, { transform: [{ translateX }], backgroundColor: 'transparent' }]}
+          style={[styles.container, { transform: [{ translateX }] }]}
           {...panResponder.panHandlers}
         >
           <QuoteCanvas
@@ -352,7 +357,6 @@ export default function QuoteTodayScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'transparent',
   },
   canvasContainer: {
     ...StyleSheet.absoluteFillObject,
